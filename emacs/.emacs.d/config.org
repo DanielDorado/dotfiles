@@ -1,0 +1,708 @@
+* Introduction
+
+This is my personal emacs configuration, I copy the org literate configuration idea from
+Yay-Evil distro by Ian Y.E. Pan.
+
+* Settings without corresponding packages
+
+- =dani/indent-width= indent width value. Using in multiple languages.
+
+
+#+BEGIN_SRC emacs-lisp
+  (use-package emacs
+    :preface
+    (defvar dani/indent-width 4) ; change this value to your preferred width
+    :config
+    (tool-bar-mode -1)
+    (menu-bar-mode -1)  ;; Use [f10] to access menu-bar
+          (setq vc-ignore-dir-regexp
+                (format "\\(%s\\)\\|\\(%s\\)"
+                        vc-ignore-dir-regexp
+                        tramp-file-name-regexp))
+    ;; Split vertically:
+    ;; (setq-default split-height-threshold 1000)  ;; I coment because it split horizontally helm windows (and )lso
+    ;;
+    (setq-default indent-tabs-mode nil) ;; Always use spaces for indentation
+    (setq-default fill-column 120)  ;; The fill width when justify paragraphs with M-q
+    (setq ab-width dani/indent-width)
+    (global-display-line-numbers-mode)
+    (setq shell-command-switch "-ic") ;; Adds the -i to the -c default mode to allow aliases
+    (put 'upcase-region 'disabled nil) ;; enable upcase-region
+    (setq smerge-command-prefix "\C-cv") ;; smerge prefix change: C-c ^ -- C-c v
+    (setq speedbar-show-unknown-files t) ;; show al files in speedbar
+    (setq tab-width dani/indent-width) ;; Tab width
+    ;; (setq tramp-histfile-override nil) ;; disable the tramp history and use the default
+    (global-set-key [f5] 'recompile)
+    (global-set-key (kbd "C-+") 'text-scale-increase)
+    (global-set-key (kbd "C--") 'text-scale-decrease)
+    (global-set-key (kbd "C-c a") 'org-agenda)
+    (global-set-key [remap dabbrev-expand] 'hippie-expand)
+    ;; ENVIRONMENT VARIABLES
+    ;; (setenv "PYTHONPATH" "/home/dani/src/cm")
+    ;; LOAD PATH
+    (add-to-list 'load-path "~/.emacs.d/lisp/")
+    (custom-set-variables
+     '(warning-suppress-log-types '((lsp-mode) (lsp-mode) (lsp-mode)))
+     '(warning-suppress-types '((lsp-mode) (lsp-mode))))
+    )
+#+END_SRC
+
+
+* Configuration for built-in packages
+
+** Omit default startup screen
+
+#+BEGIN_SRC emacs-lisp
+(use-package "startup"
+  :ensure nil
+  :config (setq inhibit-startup-screen t))
+#+END_SRC
+
+** Enable column numbers
+
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package simple
+  ;;   :ensure nil
+  ;;   :config (column-number-mode +1))
+#+END_SRC
+
+** File-related tweaks
+
+Don't bother confirming killing processes and don't let backup~ files
+scatter around.
+#+BEGIN_SRC emacs-lisp
+  (use-package files
+    :ensure nil
+    :config
+    (setq confirm-kill-processes nil
+          create-lockfiles nil ; don't create .# files (crashes 'npm start')
+          make-backup-files nil))
+#+END_SRC
+** Automatically refreshes the buffer for changes outside of Emacs
+   Auto refreshes every 2 seconds. Don't forget to refresh the version
+control status as well.
+#+BEGIN_SRC emacs-lisp
+  (use-package autorevert
+    :ensure nil
+    :config
+    (global-auto-revert-mode +1)
+    (setq auto-revert-interval 2
+          auto-revert-check-vc-info t
+          global-auto-revert-non-file-buffers t
+          auto-revert-verbose nil))
+#+END_SRC
+
+** Eldoc: documentation in the mini-buffer
+Slightly shorten eldoc display delay.
+#+BEGIN_SRC emacs-lisp
+  (use-package eldoc
+    :ensure nil
+    :diminish eldoc-mode
+    :config
+    (setq eldoc-idle-delay 0.4))
+#+END_SRC
+
+** Indentation improvement
+For Java and C/C++, change the formatting style from GNU (the default)
+to the more standard K&R. Here we also set the indentation width of C,
+C++, Java, and Python to the preferred value defined in
+~ian/indent-width~ (all languages default to 4, except JavaScript,
+which is 2, as controlled in ~web-mode~). Of course, you can change
+the value depending on the language as well.
+#+BEGIN_SRC emacs-lisp
+  ;; C, C++, and Java
+  (use-package cc-vars
+    :ensure nil
+    :config
+    (setq-default c-basic-offset dani/indent-width)
+    (setq c-default-style '((java-mode . "java")
+                            (awk-mode . "awk")
+                            (other . "k&r"))))
+
+  ;; Python (both v2 and v3)
+  (use-package python
+    :ensure nil
+    :config
+    (setq python-indent-offset dani/indent-width)
+    (setq python-shell-interpreter "ipython")
+    (setq python-shell-interpreter-args "--simple-prompt")
+    )
+#+END_SRC
+
+** Show matching parentheses
+
+Reduce the highlight delay to instantly.
+#+BEGIN_SRC emacs-lisp
+  (use-package paren
+    :ensure nil
+    :init (setq show-paren-delay 0)
+    :config (show-paren-mode +1))
+#+END_SRC
+
+** Setting up some frame defaults
+
+Maximise the frame by default on start-up. Set the font to size 12.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package frame
+    :ensure nil
+    :config
+    ;; if maximise is too much with 4k
+    ;; (add-to-list 'default-frame-alist '(width  . 170))
+    ;; (add-to-list 'default-frame-alist '(height . 120))
+    ;; (set-face-font 'default "Hack-11")
+    (set-face-font 'default "Fira Code-10")
+    ;; does not work with emacs client
+    ;; To work with emacsclient frames
+    ;; (setq initial-frame-alist '((fullscreen . maximized)))
+    (set-frame-parameter nil 'fullscreen 'maximized)
+    )
+#+END_SRC
+
+** Auto-pairing quotes and parentheses etc.
+
+Electric-pair-mode has improved quite a bit in recent Emacs
+versions. No longer need an extra package for this. It also takes care
+of the new-line-and-push-brace feature.
+
+I comment it because I don't like:
+
+#+BEGIN_SRC emacs-lisp
+  (use-package elec-pair
+    :ensure nil
+    :hook (prog-mode . electric-pair-mode))
+#+END_SRC
+
+** Clean up whitespace on save
+
+#+BEGIN_SRC emacs-lisp
+(use-package whitespace
+    :ensure nil
+    :hook (before-save . whitespace-cleanup)
+    ;; :config (add-hook 'before-save-hook 'whitespace-cleanup)
+)
+#+END_SRC
+)
+** Dump custom-set-variables to a garbage file and don't load it
+
+#+BEGIN_SRC emacs-lisp
+  (use-package cus-edit
+    :ensure nil
+    :config
+    (setq custom-file (concat user-emacs-directory "to-be-dumped.el")))
+#+END_SRC
+
+** Compile buffer with color
+
+(use-package ansi-color
+  :config
+  (defun my-colorize-compilation-buffer ()
+    (when (eq major-mode 'compilation-mode)
+      (ansi-color-apply-on-region compilation-filter-start (point-max))))
+  :hook (compilation-filter . my-colorize-compilation-buffer))
+
+
+* Third-party packages
+
+Normally, we need to add ~:ensure t~ to tell ~use-package~ to download packages when it's
+ not available. But since we've added ~use-package-always-ensure~ in ~init.el~, we can
+ omit it.
+
+** GUI enhancements
+*** ORG Bullets:
+
+#+BEGIN_SRC emacs-lisp
+(use-package org-bullets
+:ensure t
+:config (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+)
+#+END_SRC
+
+*** THEME
+#+BEGIN_SRC emacs-lisp
+(use-package zenburn-theme
+  :ensure t
+  :config
+  (load-theme 'zenburn t))
+#+END_SRC
+
+** Git Integration
+
+#+BEGIN_SRC emacs-lisp
+(use-package magit
+  :bind ("C-x g" . magit-status)
+  :config (progn
+            (setq magit-blame-echo-style 'headings))
+  )
+#+END_SRC
+
+Forge to work with github, gitlab...
+
+#+BEGIN_SRC emacs-lisp
+(setq auth-sources '("~/.authinfo"))
+
+(use-package forge
+  :after magit)
+#+END_SRC
+
+** Searching/sorting enhancements & project management
+
+Exploring large projects with Projectile and Helm
+
+#+BEGIN_SRC emacs-lisp
+  (use-package projectile
+    :ensure t
+    :config (progn
+              (projectile-global-mode)
+              (setq projectile-completion-system 'helm)
+              (projectile-mode +1)
+              (global-set-key (kbd "M-<f2>") 'projectile-speedbar-open-current-buffer-in-tree)
+              ;; (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+              ;; (add-to-list 'projectile-globally-ignored-directories "vendor")
+              ))
+
+
+  (use-package helm
+    :config (progn
+                (global-set-key (kbd "M-x") 'helm-M-x)
+                (global-set-key (kbd "C-x b") 'helm-mini)
+                )
+    :ensure t
+    )
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package ag
+    :ensure t
+)
+#+END_SRC
+
+
+* Terminal
+
+Vterm. A good shell for emacs:
+
+#+begin_src emacs-lisp
+(use-package vterm
+    :ensure t)
+#+end_src
+
+#+RESULTS:
+: t
+
+
+Bash with autocompletion.
+
+#+begin_src emacs-lisp
+(use-package bash-completion
+    :ensure t
+    :config (progn
+                (bash-completion-setup))
+)
+#+end_src
+
+#+RESULTS:
+: t
+
+* Data languages
+
+#+begin_src emacs-lisp
+(use-package csv-mode
+  :mode ("\\.csv\\'" . csv-mode)
+  ;; With big files, disable sintax
+  ;; :init (add-hook 'csv-mode-hook (lambda () (font-lock-mode -1)))
+  :ensure t)
+#+end_src
+
+* Text Modes
+
+Fill refers to the limit line length, M-q to do manually, but in text mode we do it automatically.
+
+#+begin_src emacs-lisp
+(add-hook 'text-mode-hook 'turn-on-auto-fill)
+#+end_src
+
+* Markup Languages
+
+** yaml
+
+
+#+begin_src emacs-lisp
+(use-package yaml-mode
+  :ensure t
+)
+#+end_src
+
+** AsciiDoc
+
+#+begin_src emacs-lisp
+(use-package adoc-mode
+  :mode ("\\.adoc\\'" . adoc-mode)
+  :ensure t
+)
+#+end_src
+
+* Grammarly
+
+**Grammarly remove their plugin**
+
+I need Keytar to log in.
+
+#+begin_src emacs-lisp
+;; (use-package keytar
+;;   :ensure t
+;; )
+
+;; (use-package lsp-grammarly
+;;   :ensure t
+;;   :hook (org-mode . (lambda ()
+;;                       (require 'lsp-grammarly)
+;;                       (lsp-deferred)))  ; lsp or lsp-deferred
+;;   :hook (markdown-mode . (lambda ()
+;;                            (require 'lsp-grammarly)
+;;                            (lsp-deferred)))  ; lsp or lsp-deferred
+;;   :hook (adoc-mode . (lambda ()
+;;                        (require 'lsp-grammarly)
+;;                        (lsp))) ; lsp or lsp-deferred
+;;   )
+#+end_src
+
+* ORG Mode
+
+Tangle after save, to have a file with the language to use it to edit with LSP.
+
+#+begin_src emacs-lisp
+(add-hook 'org-mode-hook
+          (lambda ()
+            (add-hook 'after-save-hook 'org-babel-tangle nil 'make-it-local)))
+#+end_src
+
+Setting task states:
+
+#+begin_src emacs-lisp
+(setq org-todo-keywords
+      '((sequence "TODO" "DOING" "BLOCK" "|" "DONE")))
+#+end_src
+
+Indentation:
+
+#+begin_src emacs-lisp
+(setq org-src-preserve-indentation t)
+(setq org-edit-src-content 0)
+(setq ob-mermaid-cli-path "/home/dani/opt/npm/node_modules/.bin/mmdc")
+#+end_src
+
+Load languages:
+
+#+begin_src emacs-lisp
+(use-package mermaid-mode
+  :ensure t
+  )
+
+(use-package ob-mermaid
+  :ensure t
+  )
+
+
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+     '(
+       (mermaid . t)
+       (python . t)
+       ))
+#+end_src
+
+Files to search to put events in the org-agenda. You can put files or a directory:
+
+#+begin_src emacs-lisp
+(setq org-agenda-files (list "~/org/work.org"))
+#+end_src
+
+* Programming Languages
+** Language Server Protocol
+#+BEGIN_SRC emacs-lisp
+
+(use-package lsp-mode
+:ensure t
+;; uncomment to enable gopls http debug server
+;; :custom (lsp-gopls-server-args '("-debug" "127.0.0.1:0"))
+:commands (lsp lsp-deferred)
+:config (progn
+(setq lsp-keymap-prefix "C-c l")
+(setq lsp-auto-guess-root t)
+;; use flycheck, not flymake
+(setq lsp-prefer-flymake nil)
+(setq lsp-enable-file-watchers nil)
+(define-key lsp-mode-map (kbd "C-c l") lsp-command-map))
+;; (define-key lsp-mode-map (kbd "C-c l") lsp-command-map)
+:hook ((gdscript-mode . lsp-deferred)
+  (go-mode . lsp-deferred)
+  (c-mode . lsp-deferred)
+  (web-mode . lsp-deferred)
+  (js-mode . lsp-deferred)
+  (python-mode . lsp-deferred)
+  (ruby-mode . lsp-deferred)
+  (sh-mode . lsp-deferred)
+  (java-mode . lsp-deferred)))
+
+(use-package lsp-java
+  :ensure t
+)
+
+(use-package lsp-ui
+:ensure t
+:commands lsp-ui-mode
+:config (progn
+(setq lsp-ui-doc-enable t
+      lsp-ui-peek-enable t
+      lsp-ui-sideline-enable t
+      lsp-ui-imenu-enable t
+      lsp-ui-flycheck-enable t)))
+#+END_SRC
+
+** Company for auto-completion
+
+Company mode is a standard completion package that works well with lsp-mode.
+
+Use =C-n= and =C-p= to navigate the tooltip.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package company
+    :ensure t
+    :config
+    ;; Optionally enable completion-as-you-type behavior.
+    (setq company-idle-delay 0.2)
+    ; (setq company-minimum-prefix-length 1)
+)
+#+END_SRC
+
+** Flycheck
+
+A modern on-the-fly syntax checking extension – absolute essential
+
+#+BEGIN_SRC emacs-lisp
+(use-package flycheck
+:ensure t
+)
+#+END_SRC
+
+** Golang
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'go-mode-hook (lambda () (setq tab-width dani/indent-width)))
+(use-package go-mode
+  ;; hook does not work
+  :hook (before-save . gofmt-before-save)
+  :config (progn
+
+            (setq gofmt-command "goimports") ;; format and add/delete imports
+            (add-hook 'go-mode-hook 'hs-minor-mode) ;; minor mode
+            (remove-hook 'before-save-hook 'whitespace-cleanup nil)
+            )
+  (require 'dap-dlv-go)
+  )
+#+END_SRC
+
+What I want:
+
+*** TODO automatically go.mod
+
+*** DONE Coulored Highlighted Syntax
+
+- go-mode
+
+*** DONE Add imports
+
+- Save hook with goimports.
+
+*** DONE Formating when saving
+
+- save hook with goimports.
+
+
+*** DONE Code Navegation
+
+Jump to functions and return.
+
+- M-. go to.
+- M-, return.
+- M-? Show references.
+
+Provided by:
+
+- go-pls
+
+*** DONE Suggestions and Autocomplete
+
+Provided by:
+
+- go-pls
+- company
+
+*** TODO Launch tests
+
+- Makefile and compile and recompile (=[f5]=)
+- =projectile-test-project=
+
+*** TODO Debug
+
+Or use external tool.
+
+#+begin_src emacs-lisp
+(use-package dap-mode
+  :ensure t
+  ;; Uncomment the config below if you want all UI panes to be hidden by default!
+  ;; :custom
+  ;; (lsp-enable-dap-auto-configure nil)
+  :config
+  ;; (dap-ui-mode 1)
+  ;; :commands dap-debug
+  ;; :config
+  ;; Set up Node debugging
+  ;; (require 'dap-node)
+  ;;  (dap-node-setup) ;; Automatically installs Node debug adapter if needed
+  (require 'dap-hydra)
+  ;; (require 'dap-gdb-lldb)
+  ;; (dap-gdb-lldb-setup)
+  ;; Automatically trigger the hydra when the program hits a breakpoint by using the following code.
+  (add-hook 'dap-stopped-hook
+            (lambda (arg) (call-interactively #'dap-hydra)))
+  ;; Bind `C-c l d` to `dap-hydra` for easy access
+  ;; (general-define-key
+  ;;   :keymaps 'lsp-mode-map
+  ;;   :prefix lsp-keymap-prefix
+  ;;   "d" '(dap-hydra t :wk "debugger"))
+  )
+#+end_src
+
+*** TODO Snippets
+
+explore yasnippet. What is org default?
+
+- if err ...
+- func ...
+
+#+begin_src emacs-lisp
+  (use-package yasnippet-snippets
+    :ensure t)
+  (use-package yasnippet
+    :ensure t
+    :config (yas-global-mode 1))
+#+end_src
+
+** Python
+
+#+BEGIN_SRC emacs-lisp
+(use-package lsp-pyright
+  :after lsp-mode
+)
+#+END_SRC
+
+*** TODO automatically venv or env
+*** DONE Coulored Highlighted Syntax
+    CLOSED: [2021-03-19 Fri 07:52]
+*** TODO Formating when saving
+*** TODO Code Navegation
+*** TODO Suggestions and Autocomplete
+*** TODO Launch tests
+*** TODO Debug
+*** TODO Snnipets
+
+** TLA+
+
+TLA mode is not in the packages.
+
+#+BEGIN_SRC emacs-lisp
+;; (use-package tla-mode
+;;   :ensure t
+;;   :mode ("\\.tla\\'" . tla-mode)
+;; )
+#+END_SRC
+
+* Querying Languages
+
+#+BEGIN_SRC emacs-lisp
+(use-package prometheus-mode
+  :ensure t
+)
+#+END_SRC
+
+* Configuration languages
+
+** Rego
+
+#+BEGIN_SRC emacs-lisp
+(use-package rego-mode
+  :ensure t
+)
+#+END_SRC
+
+** Nginx
+#+BEGIN_SRC emacs-lisp
+(use-package nginx-mode
+  :ensure t
+)
+#+END_SRC
+
+** Docker
+
+#+BEGIN_SRC emacs-lisp
+(use-package dockerfile-mode
+  :ensure t
+)
+#+END_SRC
+
+
+* TODO Refactoring
+
+Maybe with external tools...
+
+- Safe Delete
+- Extract Method
+- Extract Constant
+- Extract Field
+- Extract Parameter
+- Introduce Variable
+- Rename
+- Inline
+- Change signature
+
+* Miscellaneous
+
+** Which-key
+
+#+BEGIN_SRC emacs-lisp
+(use-package which-key
+  :diminish which-key-mode
+  :config
+  (which-key-mode +1)
+  (setq which-key-idle-delay 0.4
+        which-key-idle-secondary-delay 0.4))
+#+END_SRC
+
+** RestClient
+
+#+BEGIN_SRC emacs-lisp
+(use-package restclient
+  )
+#+END_SRC
+
+
+* My emacs-lisp functions
+
+#+BEGIN_SRC emacs-lisp
+;; load from .init.el with (load "dani")
+(defun remote (host)
+  (interactive "sHost: ")
+  (if (string-prefix-p "axinbambo" host)
+      (setq user "tomcat")
+    (setq user "deployer")
+    )
+  (find-file (concat "/ssh:admdanieladf@" host "|sudo:" user "@" host ":."))
+  )
+#+END_SRC
+* TODO References
+
+Explore the Automatic, Idempotent Setup:
+
+- https://hristos.co/blog/my-custom-emacs-setup/

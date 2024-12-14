@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: bash-header
+# key: header
+# --
+#!/usr/bin/env bash
+# Exit on errors
+set -o errexit
+set -o pipefail
+set -o nounset
