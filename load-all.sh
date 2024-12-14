@@ -4,5 +4,10 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-stow emacs
+if ! which stow; then
+    sudo apt stow
+    # to build vmake-mode in emacs
+    sudo apt install build-essential libtool autoconf unzip wget
+fi
 
+stow emacs
