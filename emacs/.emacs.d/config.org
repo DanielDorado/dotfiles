@@ -43,9 +43,6 @@ Yay-Evil distro by Ian Y.E. Pan.
     (setenv "NODE_OPTIONS" "--max-old-space-size=16384")
     ;; LOAD PATH
     (add-to-list 'load-path "~/.emacs.d/lisp/")
-    (custom-set-variables
-     '(warning-suppress-log-types '((lsp-mode) (lsp-mode) (lsp-mode)))
-     '(warning-suppress-types '((lsp-mode) (lsp-mode))))
     )
 #+END_SRC
 
@@ -435,43 +432,32 @@ Files to search to put events in the org-agenda. You can put files or a director
 * Programming Languages
 ** Language Server Protocol
 #+BEGIN_SRC emacs-lisp
-
-(use-package lsp-mode
-:ensure t
-;; uncomment to enable gopls http debug server
-;; :custom (lsp-gopls-server-args '("-debug" "127.0.0.1:0"))
-:commands (lsp lsp-deferred)
-:config (progn
-(setq lsp-keymap-prefix "C-c l")
-(setq lsp-auto-guess-root t)
-;; use flycheck, not flymake
-(setq lsp-prefer-flymake nil)
-(setq lsp-enable-file-watchers nil)
-(define-key lsp-mode-map (kbd "C-c l") lsp-command-map))
-;; (define-key lsp-mode-map (kbd "C-c l") lsp-command-map)
-:hook ((gdscript-mode . lsp-deferred)
-  (go-mode . lsp-deferred)
-  (c-mode . lsp-deferred)
-  (web-mode . lsp-deferred)
-  (js-mode . lsp-deferred)
-  (python-mode . lsp-deferred)
-  (ruby-mode . lsp-deferred)
-  (sh-mode . lsp-deferred)
-  (java-mode . lsp-deferred)))
-
-(use-package lsp-java
-  :ensure t
-)
-
-(use-package lsp-ui
-:ensure t
-:commands lsp-ui-mode
-:config (progn
-(setq lsp-ui-doc-enable t
-      lsp-ui-peek-enable t
-      lsp-ui-sideline-enable t
-      lsp-ui-imenu-enable t
-      lsp-ui-flycheck-enable t)))
+(use-package eglot
+  :ensure nil  ;; built into Emacs 30
+  :config
+  (setq eglot-autoshutdown t)  ;; shutdown server when buffer is closed
+  (setq eglot-sync-connect nil)  ;; use async connections
+   ;; Configure completion 
+  (setq completion-category-overrides '((eglot (styles orderless))))
+;; NodeJS memory limit (same as before)
+  (setenv "NODE_OPTIONS" "--max-old-space-size=16384")
+   :hook ((gdscript-mode . eglot-ensure)
+         (go-mode . eglot-ensure)
+         (c-mode . eglot-ensure)
+         (web-mode . eglot-ensure)
+         (js-mode . eglot-ensure)
+         (python-mode . eglot-ensure)
+         (ruby-mode . eglot-ensure)
+         (sh-mode . eglot-ensure)
+         (java-mode . eglot-ensure))
+  :bind (:map eglot-mode-map
+              ("C-c l r" . eglot-rename)
+              ("C-c l f" . eglot-format)
+              ("C-c l a" . eglot-code-actions)
+              ("C-c l h" . eldoc)
+              ("C-c l d" . xref-find-definitions)
+              ("C-c l i" . eglot-find-implementation)
+              ("C-c l r" . eglot-find-references)))
 #+END_SRC
 
 ** Company for auto-completion
@@ -563,30 +549,25 @@ Provided by:
 Or use external tool.
 
 #+begin_src emacs-lisp
-(use-package dap-mode
+(use-package dape
   :ensure t
-  ;; Uncomment the config below if you want all UI panes to be hidden by default!
-  ;; :custom
-  ;; (lsp-enable-dap-auto-configure nil)
+  :init
+  ;; Auto-start the Dape hydra when hitting a breakpoint
+  (add-hook 'dape-stopped-hook
+            (lambda (_) (call-interactively #'dape-hydra)))
+  :bind
+  ;; Bind a convenient key to launch the hydra (e.g., C-c d)
+  (("C-c d" . dape-hydra))
   :config
-  ;; (dap-ui-mode 1)
-  ;; :commands dap-debug
-  ;; :config
-  ;; Set up Node debugging
-  ;; (require 'dap-node)
-  ;;  (dap-node-setup) ;; Automatically installs Node debug adapter if needed
-  (require 'dap-hydra)
-  ;; (require 'dap-gdb-lldb)
-  ;; (dap-gdb-lldb-setup)
-  ;; Automatically trigger the hydra when the program hits a breakpoint by using the following code.
-  (add-hook 'dap-stopped-hook
-            (lambda (arg) (call-interactively #'dap-hydra)))
-  ;; Bind `C-c l d` to `dap-hydra` for easy access
-  ;; (general-define-key
-  ;;   :keymaps 'lsp-mode-map
-  ;;   :prefix lsp-keymap-prefix
-  ;;   "d" '(dap-hydra t :wk "debugger"))
-  )
+  (add-to-list 'dape-configs
+               `(dlv
+                 modes (go-mode go-ts-mode)
+                 command "dlv"
+                 command-args ("dap" "--listen" "127.0.0.1:0")
+                 :type "debug"
+                 :request "launch"
+                 :cwd dape-cwd-fn
+                 :program dape-find-file-buffer-default)))
 #+end_src
 
 *** TODO Snippets
@@ -605,12 +586,6 @@ explore yasnippet. What is org default?
 #+end_src
 
 ** Python
-
-#+BEGIN_SRC emacs-lisp
-(use-package lsp-pyright
-  :after lsp-mode
-)
-#+END_SRC
 
 *** TODO automatically venv or env
 *** DONE Coulored Highlighted Syntax
