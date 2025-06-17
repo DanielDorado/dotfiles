@@ -42,7 +42,9 @@
    ))
 (setq org-adapt-indentation nil)
 (setq org-confirm-babel-evaluate nil)
+;; To debug comment and uncomment
 (org-babel-load-file (expand-file-name (concat user-emacs-directory "config.org")))
+;; (load-file (expand-file-name (concat user-emacs-directory "config.el")))
 
 (provide 'init)
 ;;; init.el ends here

@@ -15,10 +15,10 @@ Yay-Evil distro by Ian Y.E. Pan.
     :config
     (tool-bar-mode -1)
     (menu-bar-mode -1)  ;; Use [f10] to access menu-bar
-	  (setq vc-ignore-dir-regexp
-		(format "\\(%s\\)\\|\\(%s\\)"
-			vc-ignore-dir-regexp
-			tramp-file-name-regexp))
+          (setq vc-ignore-dir-regexp
+                (format "\\(%s\\)\\|\\(%s\\)"
+                        vc-ignore-dir-regexp
+                        tramp-file-name-regexp))
     ;; Split vertically:
     ;; (setq-default split-height-threshold 1000)  ;; I coment because it split horizontally helm windows (and )lso
     ;;
@@ -75,8 +75,8 @@ scatter around.
     :ensure nil
     :config
     (setq confirm-kill-processes nil
-	  create-lockfiles nil ; don't create .# files (crashes 'npm start')
-	  make-backup-files nil))
+          create-lockfiles nil ; don't create .# files (crashes 'npm start')
+          make-backup-files nil))
 #+END_SRC
 ** Automatically refreshes the buffer for changes outside of Emacs
    Auto refreshes every 2 seconds. Don't forget to refresh the version
@@ -87,9 +87,9 @@ control status as well.
     :config
     (global-auto-revert-mode +1)
     (setq auto-revert-interval 2
-	  auto-revert-check-vc-info t
-	  global-auto-revert-non-file-buffers t
-	  auto-revert-verbose nil))
+          auto-revert-check-vc-info t
+          global-auto-revert-non-file-buffers t
+          auto-revert-verbose nil))
 #+END_SRC
 
 ** Eldoc: documentation in the mini-buffer
@@ -116,8 +116,8 @@ the value depending on the language as well.
     :config
     (setq-default c-basic-offset dani/indent-width)
     (setq c-default-style '((java-mode . "java")
-			    (awk-mode . "awk")
-			    (other . "k&r"))))
+                            (awk-mode . "awk")
+                            (other . "k&r"))))
 
   ;; Python (both v2 and v3)
   (use-package python
@@ -152,6 +152,7 @@ Maximise the frame by default on start-up. Set the font to size 12.
     ;; (add-to-list 'default-frame-alist '(height . 120))
     ;; (set-face-font 'default "Hack-11")
     (set-face-font 'default "Fira Code-10")
+    ;; (set-face-font 'default "Fira Code-12")
     ;; does not work with emacs client
     ;; To work with emacsclient frames
     ;; (setq initial-frame-alist '((fullscreen . maximized)))
@@ -224,6 +225,9 @@ Normally, we need to add ~:ensure t~ to tell ~use-package~ to download packages 
   :ensure t
   :config
   (load-theme 'zenburn t))
+
+(with-eval-after-load 'faces
+      (set-face-attribute 'region nil :background "#73590a"))
 #+END_SRC
 
 ** Git Integration
@@ -232,7 +236,7 @@ Normally, we need to add ~:ensure t~ to tell ~use-package~ to download packages 
 (use-package magit
   :bind ("C-x g" . magit-status)
   :config (progn
-	    (setq magit-blame-echo-style 'headings))
+            (setq magit-blame-echo-style 'headings))
   )
 #+END_SRC
 
@@ -253,20 +257,20 @@ Exploring large projects with Projectile and Helm
   (use-package projectile
     :ensure t
     :config (progn
-	      (projectile-global-mode)
-	      (setq projectile-completion-system 'helm)
-	      (projectile-mode +1)
-	      ;; (global-set-key (kbd "M-<f2>") 'projectile-speedbar-open-current-buffer-in-tree)
-	      ;; (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-	      ;; (add-to-list 'projectile-globally-ignored-directories "vendor")
-	      ))
+              (projectile-global-mode)
+              (setq projectile-completion-system 'helm)
+              (projectile-mode +1)
+              ;; (global-set-key (kbd "M-<f2>") 'projectile-speedbar-open-current-buffer-in-tree)
+              ;; (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+              ;; (add-to-list 'projectile-globally-ignored-directories "vendor")
+              ))
 
 
   (use-package helm
     :config (progn
-		(global-set-key (kbd "M-x") 'helm-M-x)
-		(global-set-key (kbd "C-x b") 'helm-mini)
-		)
+                (global-set-key (kbd "M-x") 'helm-M-x)
+                (global-set-key (kbd "C-x b") 'helm-mini)
+                )
     :ensure t
     )
 
@@ -309,7 +313,7 @@ Bash with autocompletion.
 (use-package bash-completion
     :ensure t
     :config (progn
-		(bash-completion-setup))
+                (bash-completion-setup))
 )
 #+end_src
 
@@ -385,8 +389,8 @@ Tangle after save, to have a file with the language to use it to edit with LSP.
 
 #+begin_src emacs-lisp
 (add-hook 'org-mode-hook
-	  (lambda ()
-	    (add-hook 'after-save-hook 'org-babel-tangle nil 'make-it-local)))
+          (lambda ()
+            (add-hook 'after-save-hook 'org-babel-tangle nil 'make-it-local)))
 #+end_src
 
 Setting task states:
@@ -443,22 +447,22 @@ Files to search to put events in the org-agenda. You can put files or a director
 ;; NodeJS memory limit (same as before)
   (setenv "NODE_OPTIONS" "--max-old-space-size=16384")
    :hook ((gdscript-mode . eglot-ensure)
-	 (go-mode . eglot-ensure)
-	 (c-mode . eglot-ensure)
-	 (web-mode . eglot-ensure)
-	 (js-mode . eglot-ensure)
-	 (python-mode . eglot-ensure)
-	 (ruby-mode . eglot-ensure)
-	 (sh-mode . eglot-ensure)
-	 (java-mode . eglot-ensure))
+         (go-mode . eglot-ensure)
+         (c-mode . eglot-ensure)
+         (web-mode . eglot-ensure)
+         (js-mode . eglot-ensure)
+         (python-mode . eglot-ensure)
+         (ruby-mode . eglot-ensure)
+         (sh-mode . eglot-ensure)
+         (java-mode . eglot-ensure))
   :bind (:map eglot-mode-map
-	      ("C-c l r" . eglot-rename)
-	      ("C-c l f" . eglot-format)
-	      ("C-c l a" . eglot-code-actions)
-	      ("C-c l h" . eldoc)
-	      ("C-c l d" . xref-find-definitions)
-	      ("C-c l i" . eglot-find-implementation)
-	      ("C-c l r" . eglot-find-references)))
+              ("M-g R" . eglot-rename)
+              ("C-c l f" . eglot-format)
+              ("C-c l a" . eglot-code-actions)
+              ("C-c l h" . eldoc)
+              ("N-g d" . xref-find-definitions)
+              ("M-g x" . eglot-find-implementation)
+              ("M-g r" . eglot-find-references)))
 #+END_SRC
 
 ** HS HideShow
@@ -467,8 +471,8 @@ Files to search to put events in the org-agenda. You can put files or a director
 (use-package hideshow
   :hook (prog-mode . hs-minor-mode)
   :bind (("C-c h h" . hs-hide-all)
-	 ("C-c h s" . hs-show-all)
-	 ("C-c h t" . hs-toggle-hiding)))
+         ("C-c h s" . hs-show-all)
+         ("C-c h t" . hs-toggle-hiding)))
 #+end_src
 
 ** Company for auto-completion
@@ -506,9 +510,9 @@ A modern on-the-fly syntax checking extension – absolute essential
   :hook (before-save . gofmt-before-save)
   :config (progn
 
-	    (setq gofmt-command "goimports") ;; format and add/delete imports
-	    (remove-hook 'before-save-hook 'whitespace-cleanup nil)
-	    )
+            (setq gofmt-command "goimports") ;; format and add/delete imports
+            (remove-hook 'before-save-hook 'whitespace-cleanup nil)
+            )
   (require 'dap-dlv-go)
   )
 #+END_SRC
@@ -564,20 +568,20 @@ Or use external tool.
   :init
   ;; Auto-start the Dape hydra when hitting a breakpoint
   (add-hook 'dape-stopped-hook
-	    (lambda (_) (call-interactively #'dape-hydra)))
+            (lambda (_) (call-interactively #'dape-hydra)))
   :bind
   ;; Bind a convenient key to launch the hydra (e.g., C-c d)
   (("C-c d" . dape-hydra))
   :config
   (add-to-list 'dape-configs
-	       `(dlv
-		 modes (go-mode go-ts-mode)
-		 command "dlv"
-		 command-args ("dap" "--listen" "127.0.0.1:0")
-		 :type "debug"
-		 :request "launch"
-		 :cwd dape-cwd-fn
-		 :program dape-find-file-buffer-default)))
+               `(dlv
+                 modes (go-mode go-ts-mode)
+                 command "dlv"
+                 command-args ("dap" "--listen" "127.0.0.1:0")
+                 :type "debug"
+                 :request "launch"
+                 :cwd dape-cwd-fn
+                 :program dape-find-file-buffer-default)))
 #+end_src
 
 *** TODO Snippets
@@ -676,7 +680,7 @@ Maybe with external tools...
   :config
   (which-key-mode +1)
   (setq which-key-idle-delay 0.4
-	which-key-idle-secondary-delay 0.4))
+        which-key-idle-secondary-delay 0.4))
 #+END_SRC
 
 ** RestClient
