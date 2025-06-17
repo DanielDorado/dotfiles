@@ -254,25 +254,28 @@ Forge to work with github, gitlab...
 Exploring large projects with Projectile and Helm
 
 #+BEGIN_SRC emacs-lisp
-  (use-package projectile
-    :ensure t
-    :config (progn
-              (projectile-global-mode)
-              (setq projectile-completion-system 'helm)
-              (projectile-mode +1)
-              ;; (global-set-key (kbd "M-<f2>") 'projectile-speedbar-open-current-buffer-in-tree)
-              ;; (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-              ;; (add-to-list 'projectile-globally-ignored-directories "vendor")
-              ))
+(use-package projectile
+  :ensure t
+  :config (progn
+            (projectile-global-mode)
+            (setq projectile-completion-system 'helm)
+            (projectile-mode +1)
+            ;; (global-set-key (kbd "M-<f2>") 'projectile-speedbar-open-current-buffer-in-tree)
+            ;; (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+            ;; (add-to-list 'projectile-globally-ignored-directories "vendor")
+            (setq projectile-project-root-files-functions
+                  '(projectile-root-bottom-up
+                    projectile-root-top-down
+                    projectile-root-top-down-recurring))
 
-
-  (use-package helm
-    :config (progn
-                (global-set-key (kbd "M-x") 'helm-M-x)
-                (global-set-key (kbd "C-x b") 'helm-mini)
-                )
-    :ensure t
-    )
+            ))
+(use-package helm
+  :config (progn
+            (global-set-key (kbd "M-x") 'helm-M-x)
+            (global-set-key (kbd "C-x b") 'helm-mini)
+            )
+  :ensure t
+  )
 
 (use-package treemacs-projectile
   :after (treemacs projectile)
@@ -463,6 +466,22 @@ Files to search to put events in the org-agenda. You can put files or a director
               ("N-g d" . xref-find-definitions)
               ("M-g x" . eglot-find-implementation)
               ("M-g r" . eglot-find-references)))
+
+
+;; As eglot depends on project-find-go-mod and this search for .git and Go when installing
+;; does not copy .git then we change it to use go.mod instead.
+(defun my/project-find-go-mod (dir)
+  "Find the deepest directory with a go.mod file starting from DIR upward."
+  (let ((current-dir (expand-file-name dir))
+        (deepest nil))
+    (while (not (equal current-dir "/"))
+      (when (file-exists-p (expand-file-name "go.mod" current-dir))
+        (setq deepest current-dir))
+      (setq current-dir (file-name-directory (directory-file-name current-dir))))
+    (when deepest
+      (cons 'transient (file-name-as-directory deepest)))))
+
+(add-hook 'project-find-functions #'my/project-find-go-mod)
 #+END_SRC
 
 ** HS HideShow
