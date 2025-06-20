@@ -144,20 +144,21 @@ Reduce the highlight delay to instantly.
 Maximise the frame by default on start-up. Set the font to size 12.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package frame
-    :ensure nil
-    :config
-    ;; if maximise is too much with 4k
-    ;; (add-to-list 'default-frame-alist '(width  . 170))
-    ;; (add-to-list 'default-frame-alist '(height . 120))
-    ;; (set-face-font 'default "Hack-11")
-    (set-face-font 'default "Fira Code-10")
-    ;; (set-face-font 'default "Fira Code-12")
-    ;; does not work with emacs client
-    ;; To work with emacsclient frames
-    ;; (setq initial-frame-alist '((fullscreen . maximized)))
-    (set-frame-parameter nil 'fullscreen 'maximized)
-    )
+(use-package frame
+  :ensure nil
+  :config
+  ;; if maximise is too much with 4k
+  ;; (add-to-list 'default-frame-alist '(width  . 170))
+  ;; (add-to-list 'default-frame-alist '(height . 120))
+  ;; (set-face-font 'default "Hack-11")
+  (set-face-font 'default "Fira Code-10")
+  ;; (set-face-font 'default "Fira Code-12")
+  ;; does not work with emacs client
+  ;; To work with emacsclient frames
+  ;; (setq initial-frame-alist '((fullscreen . maximized)))
+  (set-frame-parameter nil 'fullscreen 'maximized)
+  ;; frame title format
+)
 #+END_SRC
 
 ** Auto-pairing quotes and parentheses etc.
@@ -440,6 +441,11 @@ Files to search to put events in the org-agenda. You can put files or a director
 * Programming Languages
 ** Eglot
 #+BEGIN_SRC emacs-lisp
+
+;; In your init.el (before Eglot is first loaded) Go do not spawning a second gopls
+;; when navigating dependencies
+(setq-default eglot-extend-to-xref t)
+
 (use-package eglot
   :ensure nil  ;; built into Emacs 30
   :config
@@ -467,21 +473,6 @@ Files to search to put events in the org-agenda. You can put files or a director
               ("M-g x" . eglot-find-implementation)
               ("M-g r" . eglot-find-references)))
 
-
-;; As eglot depends on project-find-go-mod and this search for .git and Go when installing
-;; does not copy .git then we change it to use go.mod instead.
-(defun my/project-find-go-mod (dir)
-  "Find the deepest directory with a go.mod file starting from DIR upward."
-  (let ((current-dir (expand-file-name dir))
-        (deepest nil))
-    (while (not (equal current-dir "/"))
-      (when (file-exists-p (expand-file-name "go.mod" current-dir))
-        (setq deepest current-dir))
-      (setq current-dir (file-name-directory (directory-file-name current-dir))))
-    (when deepest
-      (cons 'transient (file-name-as-directory deepest)))))
-
-(add-hook 'project-find-functions #'my/project-find-go-mod)
 #+END_SRC
 
 ** HS HideShow
