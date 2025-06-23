@@ -468,13 +468,22 @@ Files to search to put events in the org-agenda. You can put files or a director
          (java-mode . eglot-ensure))
   :bind (:map eglot-mode-map
               ("M-g R" . eglot-rename)
+              ("M-g A" . eglot-code-actions)
               ("C-c l f" . eglot-format)
-              ("C-c l a" . eglot-code-actions)
               ("C-c l h" . eldoc)
-              ("M-g d" . xref-find-definitions)
-              ("M-g x" . eglot-find-implementation)
-              ("M-g r" . eglot-find-references)))
+              ("M-g M-d" . xref-find-definitions)
+              ("M-g M-i" . eglot-find-implementation)
+              ("M-g M-t" . eglot-find-typeDefinition)
+              ;; not working
+              ;; ("M-g M-r" . eglot-find-references)
+              ("M-g M-r" . xref-find-references)
+              ))
 
+;; breadcrumb to see where I am
+(use-package breadcrumb
+  :ensure t
+  :config
+  (breadcrumb-mode))
 #+END_SRC
 
 ** HS HideShow
