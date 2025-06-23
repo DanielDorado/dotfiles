@@ -38,6 +38,8 @@ Yay-Evil distro by Ian Y.E. Pan.
     (global-set-key (kbd "C-c a") 'org-agenda)
     (global-set-key [remap dabbrev-expand] 'hippie-expand)
     (global-set-key (kbd "M-g i") #'helm-imenu)
+    (global-set-key (kbd "M-g f") #'projectile-find-file)
+
     ;; ENVIRONMENT VARIABLES
     ;; (setenv "PYTHONPATH" "/home/dani/src/cm")
     ;; The bash LSP server is breaking because of NODE memory.
@@ -469,7 +471,7 @@ Files to search to put events in the org-agenda. You can put files or a director
               ("C-c l f" . eglot-format)
               ("C-c l a" . eglot-code-actions)
               ("C-c l h" . eldoc)
-              ("N-g d" . xref-find-definitions)
+              ("M-g d" . xref-find-definitions)
               ("M-g x" . eglot-find-implementation)
               ("M-g r" . eglot-find-references)))
 

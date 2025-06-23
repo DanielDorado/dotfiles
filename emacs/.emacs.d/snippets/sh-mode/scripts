@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: bash-source
+# key: scripts
+# --
+# scripts directory
+SCRIPT_DIR="\$( cd \"\$( dirname \"\${BASH_SOURCE[0]}\" )\" && pwd )"
+source $SCRIPT_DIR/utils.sh
