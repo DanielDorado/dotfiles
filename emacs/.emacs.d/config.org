@@ -32,6 +32,7 @@ Yay-Evil distro by Ian Y.E. Pan.
     (setq speedbar-show-unknown-files t) ;; show al files in speedbar
     (setq tab-width dani/indent-width) ;; Tab width
     ;; (setq tramp-histfile-override nil) ;; disable the tramp history and use the default
+    (setq tab-always-indent 'complete) ;; Tab: Indent or Complete
     (global-set-key [f5] 'recompile)
     (global-set-key (kbd "C-+") 'text-scale-increase)
     (global-set-key (kbd "C--") 'text-scale-decrease)
@@ -397,6 +398,20 @@ Tangle after save, to have a file with the language to use it to edit with LSP.
 (add-hook 'org-mode-hook
           (lambda ()
             (add-hook 'after-save-hook 'org-babel-tangle nil 'make-it-local)))
+
+(defun my/org-link ()
+  "Insert Org link to current heading or file at point."
+  (interactive)
+  (insert
+   (format "[[%s]]"
+           (if (org-before-first-heading-p)
+               (concat "file:" (buffer-file-name))
+             (save-excursion
+               (org-back-to-heading t)
+               (format "file:%s::*%s"
+                       (buffer-file-name)
+                       (org-get-heading t t t t)))))))
+
 #+end_src
 
 Setting task states:
@@ -448,6 +463,17 @@ Files to search to put events in the org-agenda. You can put files or a director
 ;; when navigating dependencies
 (setq-default eglot-extend-to-xref t)
 
+;; Eglot use the go.mod file
+(cl-defmethod project-root ((project (head my/go-mod)))
+  (cdr project))
+
+(defun my/project-try-go-mod (dir)
+  (let ((root (locate-dominating-file dir "go.mod")))
+    (when root
+      (cons 'my/go-mod root))))
+
+(add-hook 'project-find-functions #'my/project-try-go-mod)
+
 (use-package eglot
   :ensure nil  ;; built into Emacs 30
   :config
@@ -471,7 +497,8 @@ Files to search to put events in the org-agenda. You can put files or a director
               ("M-g A" . eglot-code-actions)
               ("C-c l f" . eglot-format)
               ("C-c l h" . eldoc)
-              ("M-g M-d" . xref-find-definitions)
+              ;; ("M-g M-d" . xref-find-definitions) this is M-.
+              ("M-g M-d" . xref-find-apropos) ;; search project wide
               ("M-g M-i" . eglot-find-implementation)
               ("M-g M-t" . eglot-find-typeDefinition)
               ;; not working
@@ -496,20 +523,25 @@ Files to search to put events in the org-agenda. You can put files or a director
          ("C-c h t" . hs-toggle-hiding)))
 #+end_src
 
-** Company for auto-completion
+** Company/Corfu for auto-completion
 
 Company mode is a standard completion package that works well with lsp-mode.
 
 Use =C-n= and =C-p= to navigate the tooltip.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package company
-    :ensure t
-    :config
-    ;; Optionally enable completion-as-you-type behavior.
-    (setq company-idle-delay 0.2)
-    ; (setq company-minimum-prefix-length 1)
-)
+  ;; (use-package company
+  ;;   :ensure t
+  ;;   :config
+  ;;   ;; Optionally enable completion-as-you-type behavior.
+  ;;   (setq company-idle-delay 0.2)
+  ;;   ; (setq company-minimum-prefix-length 1)
+  ;; )
+
+(use-package corfu
+  :init
+  (global-corfu-mode))
+;; Complete or Tab
 #+END_SRC
 
 ** Flycheck
@@ -530,7 +562,6 @@ A modern on-the-fly syntax checking extension – absolute essential
   ;; hook does not work
   :hook (before-save . gofmt-before-save)
   :config (progn
-
             (setq gofmt-command "goimports") ;; format and add/delete imports
             (remove-hook 'before-save-hook 'whitespace-cleanup nil)
             )
@@ -572,7 +603,6 @@ Provided by:
 Provided by:
 
 - go-pls
-- company
 
 *** TODO Launch tests
 
