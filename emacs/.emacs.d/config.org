@@ -32,6 +32,7 @@ Yay-Evil distro by Ian Y.E. Pan.
     (setq speedbar-show-unknown-files t) ;; show al files in speedbar
     (setq tab-width dani/indent-width) ;; Tab width
     ;; (setq tramp-histfile-override nil) ;; disable the tramp history and use the default
+    ;; Autocomplete when pressing Tab with Corfu.
     (setq tab-always-indent 'complete) ;; Tab: Indent or Complete
     (global-set-key [f5] 'recompile)
     (global-set-key (kbd "C-+") 'text-scale-increase)
@@ -47,6 +48,11 @@ Yay-Evil distro by Ian Y.E. Pan.
     (setenv "NODE_OPTIONS" "--max-old-space-size=16384")
     ;; LOAD PATH
     (add-to-list 'load-path "~/.emacs.d/lisp/")
+    ;; Configure Ediff
+    (setq ediff-show-ancestor nil
+          ediff-merge-revisions-with-ancestor nil
+          ediff-split-window-function 'split-window-horizontally
+          ediff-window-setup-function 'ediff-setup-windows-plain)
     )
 #+END_SRC
 
@@ -240,7 +246,9 @@ Normally, we need to add ~:ensure t~ to tell ~use-package~ to download packages 
 (use-package magit
   :bind ("C-x g" . magit-status)
   :config (progn
-            (setq magit-blame-echo-style 'headings))
+            (setq magit-blame-echo-style 'headings)
+            (setq magit-ediff-dwim-show-on-hunks t)
+            )
   )
 #+END_SRC
 
@@ -523,9 +531,9 @@ Files to search to put events in the org-agenda. You can put files or a director
          ("C-c h t" . hs-toggle-hiding)))
 #+end_src
 
-** Company/Corfu for auto-completion
+** Corfu for auto-completion
 
-Company mode is a standard completion package that works well with lsp-mode.
+Changed Company for Corfu.
 
 Use =C-n= and =C-p= to navigate the tooltip.
 
@@ -540,7 +548,14 @@ Use =C-n= and =C-p= to navigate the tooltip.
 
 (use-package corfu
   :init
-  (global-corfu-mode))
+  (global-corfu-mode)
+  :custom
+  ;; (corfu-auto t)              ;; Enable auto completion
+  ;; (corfu-auto-delay 0.2)        ;; No delay
+  ;; (corfu-auto-prefix 1)       ;; Start completing after 1 character
+  (corfu-preselect 'prompt)  ;; Don't preselect candidates
+  (corfu-count 30)
+)
 ;; Complete or Tab
 #+END_SRC
 
