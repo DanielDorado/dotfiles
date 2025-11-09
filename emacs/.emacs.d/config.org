@@ -21,7 +21,7 @@ Yay-Evil distro by Ian Y.E. Pan.
   ;; Split vertically:
   ;; (setq-default split-height-threshold 1000)  ;; I coment because it split horizontally helm windows (and )lso
   ;;
-  (setq-default indent-tabs-mode nil) ;; Always use spaces for indentation
+  ;; (setq-default indent-tabs-mode nil) ;; Always use spaces for indentation
   (setq-default fill-column 120)  ;; The fill width when justify paragraphs with M-q
   (setq ab-width my/indent-width)
   (global-display-line-numbers-mode)
@@ -553,6 +553,21 @@ This temporarily sets `org-pomodoro-length` for this session only."
 * Programming Languages
 ** Eglot
 #+BEGIN_SRC emacs-lisp
+;; In your init.el (before Eglot is first loaded) Go do not spawning a second gopls
+;; when navigating dependencies
+(setq-default eglot-extend-to-xref t)
+
+;; Eglot use the go.mod file
+(cl-defmethod project-root ((project (head my/go-mod)))
+  (cdr project))
+
+(defun my/project-try-go-mod (dir)
+  (let ((root (locate-dominating-file dir "go.mod")))
+    (when root
+      (cons 'my/go-mod root))))
+
+(add-hook 'project-find-functions #'my/project-try-go-mod)
+
 (use-package eglot
   :ensure nil  ;; built into Emacs 30
   :config
@@ -647,79 +662,23 @@ Previously flycheck
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'auto-mode-alist '("\\.go\\'" . go-ts-mode))
 (add-to-list 'auto-mode-alist '("go\\.mod\\'" . go-mod-ts-mode))
-(add-hook 'go-ts-mode-hook (lambda () (setq tab-width dani/indent-width)))
 
-
-;;;;;;;;;;;; TREESITTER;;;;;;;;;;;; TREESITTER;;;;;;;;;;;; TREESITTER;;;;;;;;;;;; TREESITTER
-;; Treesitter helpers to extract node names for various symbols such as consts,
-;; vars, imports, etc.
-
-(defun my/go-ts-var-is-global-p (node)
-  "Predicate which tests whether a `var_spec' node belongs to the global scope"
-  ;; The parent node for `var_spec' which is `var_declaration' belongs to the
-  ;; global scope, if the `var_declaration' node belongs to a parent node of
-  ;; type `source_file'.
-  (let* ((var-declaration (treesit-parent-until
-                           node
-                           (lambda (item)
-                             (string-equal (treesit-node-type item) "var_declaration"))
-                           t))
-         (var-declaration-parent (treesit-node-parent var-declaration)))
-    (string-equal (treesit-node-type var-declaration-parent) "source_file")))
-
-(defun my/go-ts-const-is-global-p (node)
-  "Predicate which tests whether a `const_spec' node belongs to the global scope"
-  ;; The parent node for `const_spec' which is `const_declaration' belongs to the
-  ;; global scope, if the `const_declaration' node belongs to a parent node of
-  ;; type `source_file'.
-  (let* ((const-declaration (treesit-parent-until
-                             node
-                             (lambda (item)
-                               (string-equal (treesit-node-type item) "const_declaration"))
-                             t))
-         (const-declaration-parent (treesit-node-parent const-declaration)))
-    (string-equal (treesit-node-type const-declaration-parent) "source_file")))
-
-(defun my/go-ts-const-spec-node-name (node)
-  "Returns the name of a `const_spec' node"
-  (let ((const-name (treesit-node-child-by-field-name node "name")))
-    (treesit-node-text const-name)))
-
-(defun my/go-ts-var-spec-node-name (node)
-  "Returns the name of a `var_spec' node"
-  (let ((var-name (treesit-node-child-by-field-name node "name")))
-    (treesit-node-text var-name)))
-
-(defun my/go-ts-import-node-name (node)
-  "Returns the name of a `import_spec' node"
-  (let* ((import-path (treesit-node-child-by-field-name node "path"))
-         (import-alias (treesit-node-child-by-field-name node "name"))
-         (package-name (treesit-search-subtree import-path "interpreted_string_literal_content")))
-    (cond
-     (import-alias
-      (format "%s (%s)" (treesit-node-text package-name) (treesit-node-text import-alias)))
-      (t (treesit-node-text package-name)))))
-
-(defun my/treesit-simple-imenu-settings ()
-  (setq-local imenu-max-item-length 200)
-  (setq-local imenu-index-create-function #'treesit-simple-imenu)
-  (setq-local treesit-simple-imenu-settings
-              '(;;("Imports" "\\`import_spec\\'" nil my/go-ts-import-node-name)
-                ("Interfaces" "\\`type_declaration\\'" go-ts-mode--interface-node-p nil)
-                ("Structs" "\\`type_declaration\\'" go-ts-mode--struct-node-p nil)
-                ("Functions" "\\`function_declaration\\'" nil nil)
-                ("Constants" "\\`const_spec\\'" my/go-ts-const-is-global-p my/go-ts-const-spec-node-name)
-                ("Variables" "\\`var_spec\\'" my/go-ts-var-is-global-p my/go-ts-var-spec-node-name)
-                ("Types" "\\`type_declaration\\'" go-ts-mode--other-type-node-p nil)
-                ("Aliases" "\\`type_declaration\\'" go-ts-mode--alias-node-p nil)
-                ("Methods" "\\`method_declaration\\'" nil nil)))
-  )
-;;;;;;;;;;;; TREESITTER;;;;;;;;;;;; TREESITTER;;;;;;;;;;;; TREESITTER;;;;;;;;;;;; TREESITTER
-
+;;  (add-hook 'go-ts-mode-hook (lambda () (setq tab-width my/indent-width)))
 (use-package go-ts-mode
   :ensure t
+  :hook
+  (go-ts-mode . go-format-on-save-mode)
+  (go-ts-mode . (lambda ()
+            (setq indent-tabs-mode t)
+            (setq tab-width 4)
+            (setq go-ts-mode-indent-offset 4)))
+  ;; :custom
+  ;;(go-ts-mode-indent-offset my/indent-width)
   :config
-  (add-hook 'go-ts-mode-hook #'my/treesit-simple-imenu-settings)
+  ;;(add-hook 'go-ts-mode-hook #'my/treesit-simple-imenu-settings)
+  (reformatter-define go-format
+    :program "goimports"
+    :args '("/dev/stdin"))
   )
 
 #+END_SRC
