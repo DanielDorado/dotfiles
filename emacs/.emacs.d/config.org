@@ -15,9 +15,9 @@ Yay-Evil distro by Ian Y.E. Pan.
   (tool-bar-mode -1)
   (menu-bar-mode -1)  ;; Use [f10] to access menu-bar
   (setq vc-ignore-dir-regexp
-        (format "\\(%s\\)\\|\\(%s\\)"
-                vc-ignore-dir-regexp
-                tramp-file-name-regexp))
+	(format "\\(%s\\)\\|\\(%s\\)"
+		vc-ignore-dir-regexp
+		tramp-file-name-regexp))
   ;; Split vertically:
   ;; (setq-default split-height-threshold 1000)  ;; I coment because it split horizontally helm windows (and )lso
   ;;
@@ -54,9 +54,9 @@ Yay-Evil distro by Ian Y.E. Pan.
   (add-to-list 'load-path "~/.emacs.d/lisp/")
   ;; Configure Ediff
   (setq ediff-show-ancestor nil
-        ediff-merge-revisions-with-ancestor nil
-        ediff-split-window-function 'split-window-horizontally
-        ediff-window-setup-function 'ediff-setup-windows-plain))
+	ediff-merge-revisions-with-ancestor nil
+	ediff-split-window-function 'split-window-horizontally
+	ediff-window-setup-function 'ediff-setup-windows-plain))
 #+END_SRC
 
 
@@ -87,8 +87,8 @@ scatter around.
     :ensure nil
     :config
     (setq confirm-kill-processes nil
-          create-lockfiles nil ; don't create .# files (crashes 'npm start')
-          make-backup-files nil))
+	  create-lockfiles nil ; don't create .# files (crashes 'npm start')
+	  make-backup-files nil))
 #+END_SRC
 
 ** Automatically refreshes the buffer for changes outside of Emacs
@@ -100,9 +100,9 @@ control status as well.
     :config
     (global-auto-revert-mode +1)
     (setq auto-revert-interval 2
-          auto-revert-check-vc-info t
-          global-auto-revert-non-file-buffers t
-          auto-revert-verbose nil))
+	  auto-revert-check-vc-info t
+	  global-auto-revert-non-file-buffers t
+	  auto-revert-verbose nil))
 #+END_SRC
 
 ** Eldoc: documentation in the mini-buffer
@@ -129,8 +129,8 @@ the value depending on the language as well.
     :config
     (setq-default c-basic-offset my/indent-width)
     (setq c-default-style '((java-mode . "java")
-                            (awk-mode . "awk")
-                            (other . "k&r"))))
+			    (awk-mode . "awk")
+			    (other . "k&r"))))
 
   ;; Python (both v2 and v3)
   (use-package python
@@ -240,9 +240,9 @@ Normally, we need to add ~:ensure t~ to tell ~use-package~ to download packages 
 (use-package magit
   :bind ("C-x g" . magit-status)
   :config (progn
-            (setq magit-blame-echo-style 'headings)
-            (setq magit-ediff-dwim-show-on-hunks t)
-            )
+	    (setq magit-blame-echo-style 'headings)
+	    (setq magit-ediff-dwim-show-on-hunks t)
+	    )
   )
 #+END_SRC
 
@@ -263,23 +263,23 @@ Exploring large projects with Projectile and Helm
 (use-package projectile
   :ensure t
   :config (progn
-            (projectile-global-mode)
-            (setq projectile-completion-system 'helm)
-            (projectile-mode +1)
-            (setq projectile-project-root-files-functions
-                  '(projectile-root-bottom-up
-                    projectile-root-top-down
-                    projectile-root-top-down-recurring))
-            ;; I want put .projectile in code and this be the root.
-            (setq projectile-project-root-files-bottom-up
-                  (append '(".projectile") projectile-project-root-files-bottom-up))
+	    (projectile-global-mode)
+	    (setq projectile-completion-system 'helm)
+	    (projectile-mode +1)
+	    (setq projectile-project-root-files-functions
+		  '(projectile-root-bottom-up
+		    projectile-root-top-down
+		    projectile-root-top-down-recurring))
+	    ;; I want put .projectile in code and this be the root.
+	    (setq projectile-project-root-files-bottom-up
+		  (append '(".projectile") projectile-project-root-files-bottom-up))
 
-            ))
+	    ))
 (use-package helm
   :config (progn
-            (global-set-key (kbd "M-x") 'helm-M-x)
-            (global-set-key (kbd "C-x b") 'helm-mini)
-            )
+	    (global-set-key (kbd "M-x") 'helm-M-x)
+	    (global-set-key (kbd "C-x b") 'helm-mini)
+	    )
   :ensure t
   :config
   ;; helm-imenu go to the definitions
@@ -298,7 +298,7 @@ Exploring large projects with Projectile and Helm
   (setq treemacs-width-is-initially-locked nil)
   (setq treemacs-width 70)
   (treemacs-project-follow-mode t)
-  (treemacs-follow-mode -1)
+  (treemacs-follow-mode t)
   (treemacs-filewatch-mode -1)
 
   (defun tree ()
@@ -327,7 +327,7 @@ Exploring large projects with Projectile and Helm
   "Send arg like with C-u"
   (interactive)
   (let ((current-prefix-arg t)
-        (case-fold-search nil))
+	(case-fold-search nil))
     (call-interactively 'projectile-ripgrep)))
 
 
@@ -336,21 +336,21 @@ Exploring large projects with Projectile and Helm
   :config
   ;; This is used to remove --fixed-strings that is inserted for the ripgrep package
   (advice-add 'ripgrep-regexp :around
-              (lambda (orig &rest args)
-                (let ((case-fold-search nil))
-                  (apply orig args)))
-              )
+	      (lambda (orig &rest args)
+		(let ((case-fold-search nil))
+		  (apply orig args)))
+	      )
   (defun my/ripgrep-regexp-from-dir ()
     "Run `ripgrep-regexp' using the directory of the current buffer or Dired."
     (interactive)
     (let* ((dir (if (derived-mode-p 'dired-mode)
-                    (dired-current-directory)
-                  default-directory))
-           (regexp (read-from-minibuffer
-                    (format "Ripgrep regexp in %s for: " (abbreviate-file-name dir))
-                    (thing-at-point 'symbol))))
+		    (dired-current-directory)
+		  default-directory))
+	   (regexp (read-from-minibuffer
+		    (format "Ripgrep regexp in %s for: " (abbreviate-file-name dir))
+		    (thing-at-point 'symbol))))
       (let ((case-fold-search nil)) ;; case-sensitive by default
-        (ripgrep-regexp regexp dir))))
+	(ripgrep-regexp regexp dir))))
 
   )
 #+END_SRC
@@ -371,7 +371,7 @@ Bash with autocompletion.
 (use-package bash-completion
     :ensure t
     :config (progn
-                (bash-completion-setup))
+		(bash-completion-setup))
 )
 #+end_src
 
@@ -425,21 +425,21 @@ Tangle after save, to have a file with the language to use it to edit with LSP.
 
 #+begin_src emacs-lisp
 (add-hook 'org-mode-hook
-          (lambda ()
-            (add-hook 'after-save-hook 'org-babel-tangle nil 'make-it-local)))
+	  (lambda ()
+	    (add-hook 'after-save-hook 'org-babel-tangle nil 'make-it-local)))
 
 (defun my/org-link ()
   "Insert Org link to current heading or file at point."
   (interactive)
   (insert
    (format "[[%s]]"
-           (if (org-before-first-heading-p)
-               (concat "file:" (buffer-file-name))
-             (save-excursion
-               (org-back-to-heading t)
-               (format "file:%s::*%s"
-                       (buffer-file-name)
-                       (org-get-heading t t t t)))))))
+	   (if (org-before-first-heading-p)
+	       (concat "file:" (buffer-file-name))
+	     (save-excursion
+	       (org-back-to-heading t)
+	       (format "file:%s::*%s"
+		       (buffer-file-name)
+		       (org-get-heading t t t t)))))))
 
 #+end_src
 
@@ -499,19 +499,19 @@ Files to search to put events in the org-agenda. You can put files or a director
   ;; Use sound alerts (optional)
   ;; You can use .wav files from org-pomodoro's package directory or your own
   (setq org-pomodoro-start-sound "~/sounds/Polite.wav"
-        org-pomodoro-finish-sound "~/sounds/Polite.wav"
-        )
+	org-pomodoro-finish-sound "~/sounds/Polite.wav"
+	)
 
   ;; Disable breaks
   (setq org-pomodoro-length 27
-        org-pomodoro-short-break-length 0
-        org-pomodoro-long-break-length 0
-        org-pomodoro-long-break-frequency 1000000)
+	org-pomodoro-short-break-length 0
+	org-pomodoro-long-break-length 0
+	org-pomodoro-long-break-frequency 1000000)
 
   ;; Optional visual feedback in modeline
   (setq org-pomodoro-format "🍅 %s"
-        org-pomodoro-short-break-format "☕ %s"
-        org-pomodoro-long-break-format "🌴 %s")
+	org-pomodoro-short-break-format "☕ %s"
+	org-pomodoro-long-break-format "🌴 %s")
 
   (defun my/org-pomodoro-toggle ()
     "Start a pomodoro (and clock in) or, if active, kill it and stop the clock.
@@ -524,19 +524,19 @@ Behavior:
     (require 'org-pomodoro)
 
     (if (and (fboundp 'org-pomodoro-active-p)
-             (org-pomodoro-active-p))
-        ;; Pomodoro is running: stop everything
-        (progn
-          (when (org-clocking-p)
-            ;; (org-clock-out nil t): no note prompt, resolves to now
-            (org-clock-out nil t)
-            (ignore-errors (org-pomodoro-kill))
-            ))
+	     (org-pomodoro-active-p))
+	;; Pomodoro is running: stop everything
+	(progn
+	  (when (org-clocking-p)
+	    ;; (org-clock-out nil t): no note prompt, resolves to now
+	    (org-clock-out nil t)
+	    (ignore-errors (org-pomodoro-kill))
+	    ))
       ;; No pomodoro: make sure we're clocking, then start one
       (progn
-        ;; If not already clocking, try to clock into current heading.
-        ;; If point isn't on a heading, Org will prompt you to pick a task.
-        (org-pomodoro)))
+	;; If not already clocking, try to clock into current heading.
+	;; If point isn't on a heading, Org will prompt you to pick a task.
+	(org-pomodoro)))
     )
   (global-set-key (kbd "C-c p") #'my/org-pomodoro-toggle)
 
@@ -582,29 +582,29 @@ This temporarily sets `org-pomodoro-length` for this session only."
   ;; NodeJS memory limit (same as before)
   (setenv "NODE_OPTIONS" "--max-old-space-size=16384")
   :hook ((gdscript-mode . eglot-ensure)
-         (go-ts-mode . eglot-ensure)
-         (c-mode . eglot-ensure)
-         (web-mode . eglot-ensure)
-         (js-mode . eglot-ensure)
-         (python-mode . eglot-ensure)
-         (ruby-mode . eglot-ensure)
-         (sh-mode . eglot-ensure)
-         (java-mode . eglot-ensure)
-         (eglot-managed-mode . my/eglot-capfs)
-         )
+	 (go-ts-mode . eglot-ensure)
+	 (c-mode . eglot-ensure)
+	 (web-mode . eglot-ensure)
+	 (js-mode . eglot-ensure)
+	 (python-mode . eglot-ensure)
+	 (ruby-mode . eglot-ensure)
+	 (sh-mode . eglot-ensure)
+	 (java-mode . eglot-ensure)
+	 (eglot-managed-mode . my/eglot-capfs)
+	 )
   :bind (:map eglot-mode-map
-              ("M-g R" . eglot-rename)
-              ("M-g A" . eglot-code-actions)
-              ("C-c l f" . eglot-format)
-              ("C-c l h" . eldoc)
-              ;; ("M-g M-d" . xref-find-definitions) this is M-.
-              ("M-g M-d" . xref-find-apropos) ;; search project wide
-              ("M-g M-i" . eglot-find-implementation)
-              ("M-g M-t" . eglot-find-typeDefinition)
-              ;; not working
-              ;; ("M-g M-r" . eglot-find-references)
-              ("M-g M-r" . xref-find-references)
-              ))
+	      ("M-g R" . eglot-rename)
+	      ("M-g A" . eglot-code-actions)
+	      ("C-c l f" . eglot-format)
+	      ("C-c l h" . eldoc)
+	      ;; ("M-g M-d" . xref-find-definitions) this is M-.
+	      ("M-g M-d" . xref-find-apropos) ;; search project wide
+	      ("M-g M-i" . eglot-find-implementation)
+	      ("M-g M-t" . eglot-find-typeDefinition)
+	      ;; not working
+	      ;; ("M-g M-r" . eglot-find-references)
+	      ("M-g M-r" . xref-find-references)
+	      ))
 
 
 (add-to-list 'auto-mode-alist '("\\.avsc\\'" . js-mode))
@@ -671,9 +671,9 @@ Previously flycheck
   :hook
   (go-ts-mode . go-format-on-save-mode)
   (go-ts-mode . (lambda ()
-            (setq indent-tabs-mode t)
-            (setq tab-width 4)
-            (setq go-ts-mode-indent-offset 4)))
+	    (setq indent-tabs-mode t)
+	    (setq tab-width 4)
+	    (setq go-ts-mode-indent-offset 4)))
   ;; :custom
   ;;(go-ts-mode-indent-offset my/indent-width)
   :config
@@ -735,20 +735,20 @@ Or use external tool.
   :init
   ;; Auto-start the Dape hydra when hitting a breakpoint
   (add-hook 'dape-stopped-hook
-            (lambda (_) (call-interactively #'dape-hydra)))
+	    (lambda (_) (call-interactively #'dape-hydra)))
   :bind
   ;; Bind a convenient key to launch the hydra (e.g., C-c d)
   (("C-c d" . dape-hydra))
   :config
   (add-to-list 'dape-configs
-               `(dlv
-                 modes (go-ts-mode)
-                 command "dlv"
-                 command-args ("dap" "--listen" "127.0.0.1:0")
-                 :type "debug"
-                 :request "launch"
-                 :cwd dape-cwd-fn
-                 :program dape-find-file-buffer-default)))
+	       `(dlv
+		 modes (go-ts-mode)
+		 command "dlv"
+		 command-args ("dap" "--listen" "127.0.0.1:0")
+		 :type "debug"
+		 :request "launch"
+		 :cwd dape-cwd-fn
+		 :program dape-find-file-buffer-default)))
 #+end_src
 
 *** TODO Snippets
@@ -764,7 +764,7 @@ explore yasnippet. What is org default?
   :init
   ;; set dirs BEFORE loading tables
   (setq yas-snippet-dirs
-        (list (expand-file-name "~/.emacs.d/snippets"))) ; your own
+	(list (expand-file-name "~/.emacs.d/snippets"))) ; your own
   :config
   (yas-global-mode 1)
   (setq yas-triggers-in-field t)
@@ -786,8 +786,8 @@ explore yasnippet. What is org default?
   :after (yasnippet corfu cape eglot)
   :config
   (add-to-list 'completion-at-point-functions
-               #'yasnippet-capf
-               )
+	       #'yasnippet-capf
+	       )
   )
 
 
@@ -795,10 +795,10 @@ explore yasnippet. What is org default?
 (defun my/eglot-capfs ()
   "Prioriza snippets y después LSP (Eglot)."
   (setq-local completion-at-point-functions
-              (list (cape-capf-super
-                     #'yasnippet-capf           ; snippets
-                     #'eglot-completion-at-point ; LSP
-                     #'cape-dabbrev))))          ; fallback opcional
+	      (list (cape-capf-super
+		     #'yasnippet-capf           ; snippets
+		     #'eglot-completion-at-point ; LSP
+		     #'cape-dabbrev))))          ; fallback opcional
 #+end_src
 
 ** Python
@@ -885,7 +885,7 @@ Maybe with external tools...
   :config
   (which-key-mode +1)
   (setq which-key-idle-delay 0.4
-        which-key-idle-secondary-delay 0.4))
+	which-key-idle-secondary-delay 0.4))
 #+END_SRC
 
 ** RestClient OFF
