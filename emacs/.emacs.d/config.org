@@ -5,55 +5,56 @@ Yay-Evil distro by Ian Y.E. Pan.
 
 * Settings without corresponding packages
 
-- =dani/indent-width= indent width value. Using in multiple languages.
-
+- =my/indent-width= indent width value. Using in multiple languages.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package emacs
-    :preface
-    (defvar dani/indent-width 4) ; change this value to your preferred width
-    :config
-    (tool-bar-mode -1)
-    (menu-bar-mode -1)  ;; Use [f10] to access menu-bar
-          (setq vc-ignore-dir-regexp
-                (format "\\(%s\\)\\|\\(%s\\)"
-                        vc-ignore-dir-regexp
-                        tramp-file-name-regexp))
-    ;; Split vertically:
-    ;; (setq-default split-height-threshold 1000)  ;; I coment because it split horizontally helm windows (and )lso
-    ;;
-    (setq-default indent-tabs-mode nil) ;; Always use spaces for indentation
-    (setq-default fill-column 120)  ;; The fill width when justify paragraphs with M-q
-    (setq ab-width dani/indent-width)
-    (global-display-line-numbers-mode)
-    (setq shell-command-switch "-ic") ;; Adds the -i to the -c default mode to allow aliases
-    (put 'upcase-region 'disabled nil) ;; enable upcase-region
-    (setq smerge-command-prefix "\C-cv") ;; smerge prefix change: C-c ^ -- C-c v
-    (setq speedbar-show-unknown-files t) ;; show al files in speedbar
-    (setq tab-width dani/indent-width) ;; Tab width
-    ;; (setq tramp-histfile-override nil) ;; disable the tramp history and use the default
-    ;; Autocomplete when pressing Tab with Corfu.
-    (setq tab-always-indent 'complete) ;; Tab: Indent or Complete
-    (global-set-key [f5] 'recompile)
-    (global-set-key (kbd "C-+") 'text-scale-increase)
-    (global-set-key (kbd "C--") 'text-scale-decrease)
-    (global-set-key (kbd "C-c a") 'org-agenda)
-    (global-set-key [remap dabbrev-expand] 'hippie-expand)
-    (global-set-key (kbd "M-g i") #'helm-imenu)
-    (global-set-key (kbd "M-g f") #'projectile-find-file)
+(use-package emacs
+  :preface
+  (defvar my/indent-width 4) ; change this value to your preferred width
+  :config
+  (tool-bar-mode -1)
+  (menu-bar-mode -1)  ;; Use [f10] to access menu-bar
+  (setq vc-ignore-dir-regexp
+        (format "\\(%s\\)\\|\\(%s\\)"
+                vc-ignore-dir-regexp
+                tramp-file-name-regexp))
+  ;; Split vertically:
+  ;; (setq-default split-height-threshold 1000)  ;; I coment because it split horizontally helm windows (and )lso
+  ;;
+  (setq-default indent-tabs-mode nil) ;; Always use spaces for indentation
+  (setq-default fill-column 120)  ;; The fill width when justify paragraphs with M-q
+  (setq ab-width my/indent-width)
+  (global-display-line-numbers-mode)
+  (setq shell-command-switch "-ic") ;; Adds the -i to the -c default mode to allow aliases
+  (put 'upcase-region 'disabled nil) ;; enable upcase-region
+  (setq smerge-command-prefix "\C-cv") ;; smerge prefix change: C-c ^ -- C-c v
+  (setq tab-width my/indent-width) ;; Tab width
+  ;; Autocomplete when pressing Tab
+  (setq tab-always-indent 'complete) ;; Tab: Indent or Complete
+  (global-set-key [f5] 'recompile)
+  (global-set-key (kbd "C-+") 'text-scale-increase)
+  (global-set-key (kbd "C--") 'text-scale-decrease)
+  (global-set-key (kbd "C-c a") 'org-agenda)
+  (global-set-key [remap dabbrev-expand] 'hippie-expand)
+  (global-set-key (kbd "M-g i") #'helm-imenu)
+  (global-set-key (kbd "M-g f") #'projectile-find-file)
+  (global-set-key (kbd "M-g y") #'yas-insert-snippet)
+  ;; Do search: 1) project regex 2) project no-regex  3) dir regex 4) dir no-regex
+  ;; (global-set-key (kbd "M-g s") #'projectile-ripgrep)
+  (global-set-key (kbd "M-g s") #'my/projectile-ripgrep-regex)
+  (global-set-key (kbd "M-g S") #'my/ripgrep-regexp-from-dir)
 
-    ;; ENVIRONMENT VARIABLES
-    ;; (setenv "PYTHONPATH" "/home/dani/src/cm")
-    ;; The bash LSP server is breaking because of NODE memory.
-    (setenv "NODE_OPTIONS" "--max-old-space-size=16384")
-    ;; LOAD PATH
-    (add-to-list 'load-path "~/.emacs.d/lisp/")
-    ;; Configure Ediff
-    (setq ediff-show-ancestor nil
-          ediff-merge-revisions-with-ancestor nil
-          ediff-split-window-function 'split-window-horizontally
-          ediff-window-setup-function 'ediff-setup-windows-plain)
-    )
+  ;; ENVIRONMENT VARIABLES
+  ;; (setenv "PYTHONPATH" "/home/dani/src/cm")
+  ;; The bash LSP server is breaking because of NODE memory.
+  (setenv "NODE_OPTIONS" "--max-old-space-size=16384")
+  ;; LOAD PATH
+  (add-to-list 'load-path "~/.emacs.d/lisp/")
+  ;; Configure Ediff
+  (setq ediff-show-ancestor nil
+        ediff-merge-revisions-with-ancestor nil
+        ediff-split-window-function 'split-window-horizontally
+        ediff-window-setup-function 'ediff-setup-windows-plain))
 #+END_SRC
 
 
@@ -87,6 +88,7 @@ scatter around.
           create-lockfiles nil ; don't create .# files (crashes 'npm start')
           make-backup-files nil))
 #+END_SRC
+
 ** Automatically refreshes the buffer for changes outside of Emacs
    Auto refreshes every 2 seconds. Don't forget to refresh the version
 control status as well.
@@ -123,7 +125,7 @@ the value depending on the language as well.
   (use-package cc-vars
     :ensure nil
     :config
-    (setq-default c-basic-offset dani/indent-width)
+    (setq-default c-basic-offset my/indent-width)
     (setq c-default-style '((java-mode . "java")
                             (awk-mode . "awk")
                             (other . "k&r"))))
@@ -132,7 +134,7 @@ the value depending on the language as well.
   (use-package python
     :ensure nil
     :config
-    (setq python-indent-offset dani/indent-width)
+    (setq python-indent-offset my/indent-width)
     (setq python-shell-interpreter "ipython")
     (setq python-shell-interpreter-args "--simple-prompt")
     )
@@ -150,21 +152,15 @@ Reduce the highlight delay to instantly.
 
 ** Setting up some frame defaults
 
-Maximise the frame by default on start-up. Set the font to size 12.
+Maximize the frame by default on start-up. Set the font to size 12.
 
 #+BEGIN_SRC emacs-lisp
 (use-package frame
   :ensure nil
   :config
-  ;; if maximise is too much with 4k
-  ;; (add-to-list 'default-frame-alist '(width  . 170))
-  ;; (add-to-list 'default-frame-alist '(height . 120))
   ;; (set-face-font 'default "Hack-11")
-  (set-face-font 'default "Fira Code-10")
-  ;; (set-face-font 'default "Fira Code-12")
+  (set-face-font 'default "Fira Code-12")
   ;; does not work with emacs client
-  ;; To work with emacsclient frames
-  ;; (setq initial-frame-alist '((fullscreen . maximized)))
   (set-frame-parameter nil 'fullscreen 'maximized)
   ;; frame title format
 )
@@ -190,7 +186,6 @@ I comment it because I don't like:
 (use-package whitespace
     :ensure nil
     :hook (before-save . whitespace-cleanup)
-    ;; :config (add-hook 'before-save-hook 'whitespace-cleanup)
 )
 #+END_SRC
 )
@@ -203,15 +198,12 @@ I comment it because I don't like:
     (setq custom-file (concat user-emacs-directory "to-be-dumped.el")))
 #+END_SRC
 
-** Compile buffer with color
+* Download packages from Gitub with qelpa
 
-(use-package ansi-color
-  :config
-  (defun my-colorize-compilation-buffer ()
-    (when (eq major-mode 'compilation-mode)
-      (ansi-color-apply-on-region compilation-filter-start (point-max))))
-  :hook (compilation-filter . my-colorize-compilation-buffer))
-
+#+begin_src emacs-lisp
+;; (use-package quelpa :ensure t)
+;; (use-package quelpa-use-package :ensure t)
+#+end_src
 
 * Third-party packages
 
@@ -272,13 +264,13 @@ Exploring large projects with Projectile and Helm
             (projectile-global-mode)
             (setq projectile-completion-system 'helm)
             (projectile-mode +1)
-            ;; (global-set-key (kbd "M-<f2>") 'projectile-speedbar-open-current-buffer-in-tree)
-            ;; (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-            ;; (add-to-list 'projectile-globally-ignored-directories "vendor")
             (setq projectile-project-root-files-functions
                   '(projectile-root-bottom-up
                     projectile-root-top-down
                     projectile-root-top-down-recurring))
+            ;; I want put .projectile in code and this be the root.
+            (setq projectile-project-root-files-bottom-up
+                  (append '(".projectile") projectile-project-root-files-bottom-up))
 
             ))
 (use-package helm
@@ -287,11 +279,37 @@ Exploring large projects with Projectile and Helm
             (global-set-key (kbd "C-x b") 'helm-mini)
             )
   :ensure t
+  :config
+  ;; helm-imenu go to the definitions
+  (with-eval-after-load 'helm
+  ;; Make sure the buffers module is loaded (defines the var in newer Helm)
+  (require 'helm-buffers nil t)
+  ;; If your Helm version still doesn't define it, provide a harmless default.
+  (unless (boundp 'helm-buffers-maybe-switch-to-tab)
+    (defvar helm-buffers-maybe-switch-to-tab nil)))
+  )
+
+(use-package treemacs
+  :ensure t
+  :config
+  (setq treemacs-show-hidden-files nil)
+  (setq treemacs-width-is-initially-locked nil)
+  (setq treemacs-width 70)
+  (treemacs-project-follow-mode t)
+  (treemacs-follow-mode -1)
+  (treemacs-filewatch-mode -1)
+
+  (defun tree ()
+    "Open Treemacs focused on the current project, or fall back to plain Treemacs."
+    (interactive)
+    (treemacs)
+    (treemacs-display-current-project-exclusively)
+    )
   )
 
 (use-package treemacs-projectile
   :after (treemacs projectile)
-  :ensure t)
+  )
 
 (use-package treemacs-icons-dired
   :hook (dired-mode . treemacs-icons-dired-enable-once)
@@ -303,9 +321,36 @@ Exploring large projects with Projectile and Helm
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-  (use-package ag
-    :ensure t
-)
+(defun my/projectile-ripgrep-regex ()
+  "Send arg like with C-u"
+  (interactive)
+  (let ((current-prefix-arg t)
+        (case-fold-search nil))
+    (call-interactively 'projectile-ripgrep)))
+
+
+(use-package ripgrep
+  :ensure t
+  :config
+  ;; This is used to remove --fixed-strings that is inserted for the ripgrep package
+  (advice-add 'ripgrep-regexp :around
+              (lambda (orig &rest args)
+                (let ((case-fold-search nil))
+                  (apply orig args)))
+              )
+  (defun my/ripgrep-regexp-from-dir ()
+    "Run `ripgrep-regexp' using the directory of the current buffer or Dired."
+    (interactive)
+    (let* ((dir (if (derived-mode-p 'dired-mode)
+                    (dired-current-directory)
+                  default-directory))
+           (regexp (read-from-minibuffer
+                    (format "Ripgrep regexp in %s for: " (abbreviate-file-name dir))
+                    (thing-at-point 'symbol))))
+      (let ((case-fold-search nil)) ;; case-sensitive by default
+        (ripgrep-regexp regexp dir))))
+
+  )
 #+END_SRC
 
 
@@ -318,10 +363,6 @@ Vterm. A good shell for emacs:
     :ensure t)
 #+end_src
 
-#+RESULTS:
-: t
-
-
 Bash with autocompletion.
 
 #+begin_src emacs-lisp
@@ -331,9 +372,6 @@ Bash with autocompletion.
                 (bash-completion-setup))
 )
 #+end_src
-
-#+RESULTS:
-: t
 
 * Data languages
 
@@ -351,6 +389,12 @@ Fill refers to the limit line length, M-q to do manually, but in text mode we do
 
 #+begin_src emacs-lisp
 (add-hook 'text-mode-hook 'turn-on-auto-fill)
+
+(defun my/toggle-split-lines ()
+  "Toggle Split Lines."
+  (interactive)
+  (auto-fill-mode 'toggle)
+)
 #+end_src
 
 * Markup Languages
@@ -371,31 +415,6 @@ Fill refers to the limit line length, M-q to do manually, but in text mode we do
   :mode ("\\.adoc\\'" . adoc-mode)
   :ensure t
 )
-#+end_src
-
-* Grammarly
-
-**Grammarly remove their plugin**
-
-I need Keytar to log in.
-
-#+begin_src emacs-lisp
-;; (use-package keytar
-;;   :ensure t
-;; )
-
-;; (use-package lsp-grammarly
-;;   :ensure t
-;;   :hook (org-mode . (lambda ()
-;;                       (require 'lsp-grammarly)
-;;                       (lsp-deferred)))  ; lsp or lsp-deferred
-;;   :hook (markdown-mode . (lambda ()
-;;                            (require 'lsp-grammarly)
-;;                            (lsp-deferred)))  ; lsp or lsp-deferred
-;;   :hook (adoc-mode . (lambda ()
-;;                        (require 'lsp-grammarly)
-;;                        (lsp))) ; lsp or lsp-deferred
-;;   )
 #+end_src
 
 * ORG Mode
@@ -463,43 +482,106 @@ Files to search to put events in the org-agenda. You can put files or a director
 (setq org-agenda-files (list "~/org/work.org"))
 #+end_src
 
+#+begin_src emacs-lisp
+;; Ensure you have 'use-package' installed and configured
+(use-package alert
+  :commands alert
+  :config
+  (setq alert-default-style 'notifications))
+
+(use-package org-pomodoro
+  :after org
+  :bind
+  ;; You can start Pomodoro with C-c C-x C-p from any Org heading
+  :config
+
+  ;; Use sound alerts (optional)
+  ;; You can use .wav files from org-pomodoro's package directory or your own
+  (setq org-pomodoro-start-sound "~/sounds/Polite.wav"
+        org-pomodoro-finish-sound "~/sounds/Polite.wav"
+        )
+
+  ;; Disable breaks
+  (setq org-pomodoro-length 27
+        org-pomodoro-short-break-length 0
+        org-pomodoro-long-break-length 0
+        org-pomodoro-long-break-frequency 1000000)
+
+  ;; Optional visual feedback in modeline
+  (setq org-pomodoro-format "🍅 %s"
+        org-pomodoro-short-break-format "☕ %s"
+        org-pomodoro-long-break-format "🌴 %s")
+
+  (defun my/org-pomodoro-toggle ()
+    "Start a pomodoro (and clock in) or, if active, kill it and stop the clock.
+
+Behavior:
+- No active pomodoro -> ensure we're clocked in, then start a pomodoro.
+- Active pomodoro     -> kill the pomodoro and clock out."
+    (interactive)
+    (require 'org)
+    (require 'org-pomodoro)
+
+    (if (and (fboundp 'org-pomodoro-active-p)
+             (org-pomodoro-active-p))
+        ;; Pomodoro is running: stop everything
+        (progn
+          (when (org-clocking-p)
+            ;; (org-clock-out nil t): no note prompt, resolves to now
+            (org-clock-out nil t)
+            (ignore-errors (org-pomodoro-kill))
+            ))
+      ;; No pomodoro: make sure we're clocking, then start one
+      (progn
+        ;; If not already clocking, try to clock into current heading.
+        ;; If point isn't on a heading, Org will prompt you to pick a task.
+        (org-pomodoro)))
+    )
+  (global-set-key (kbd "C-c p") #'my/org-pomodoro-toggle)
+
+  (defun my/pomo (minutes)
+    "Start a pomodoro for the current Org heading with a custom MINUTES length.
+This temporarily sets `org-pomodoro-length` for this session only."
+    (interactive "nPomodoro length (minutes): ")
+    (require 'org)
+    (require 'org-pomodoro)
+    (setq org-pomodoro-length minutes)
+    (message "Pomodoro length set to %d minutes." minutes)
+    (my/org-pomodoro-toggle))
+
+
+  )
+
+
+
+
+#+end_src
+
 * Programming Languages
 ** Eglot
 #+BEGIN_SRC emacs-lisp
-
-;; In your init.el (before Eglot is first loaded) Go do not spawning a second gopls
-;; when navigating dependencies
-(setq-default eglot-extend-to-xref t)
-
-;; Eglot use the go.mod file
-(cl-defmethod project-root ((project (head my/go-mod)))
-  (cdr project))
-
-(defun my/project-try-go-mod (dir)
-  (let ((root (locate-dominating-file dir "go.mod")))
-    (when root
-      (cons 'my/go-mod root))))
-
-(add-hook 'project-find-functions #'my/project-try-go-mod)
-
 (use-package eglot
   :ensure nil  ;; built into Emacs 30
   :config
+  ;; We want to use treesit-simple-imenu for imenu index creation
+  (add-to-list 'eglot-stay-out-of 'imenu)
   (setq eglot-autoshutdown t)  ;; shutdown server when buffer is closed
   (setq eglot-sync-connect nil)  ;; use async connections
-   ;; Configure completion
+  ;; Configure completion
   (setq completion-category-overrides '((eglot (styles orderless))))
-;; NodeJS memory limit (same as before)
+  ;; NodeJS memory limit (same as before)
   (setenv "NODE_OPTIONS" "--max-old-space-size=16384")
-   :hook ((gdscript-mode . eglot-ensure)
-         (go-mode . eglot-ensure)
+  :hook ((gdscript-mode . eglot-ensure)
+         (go-ts-mode . eglot-ensure)
          (c-mode . eglot-ensure)
          (web-mode . eglot-ensure)
          (js-mode . eglot-ensure)
          (python-mode . eglot-ensure)
          (ruby-mode . eglot-ensure)
          (sh-mode . eglot-ensure)
-         (java-mode . eglot-ensure))
+         (java-mode . eglot-ensure)
+         (eglot-managed-mode . my/eglot-capfs)
+         )
   :bind (:map eglot-mode-map
               ("M-g R" . eglot-rename)
               ("M-g A" . eglot-code-actions)
@@ -514,6 +596,14 @@ Files to search to put events in the org-agenda. You can put files or a director
               ("M-g M-r" . xref-find-references)
               ))
 
+
+(add-to-list 'auto-mode-alist '("\\.avsc\\'" . js-mode))
+(add-to-list 'auto-mode-alist '("\\.avpr\\'" . js-mode))
+;; (add-to-list 'auto-mode-alist '("\\.avdl\\'" . avro-idl-mode))
+
+;;
+
+
 ;; breadcrumb to see where I am
 (use-package breadcrumb
   :ensure t
@@ -521,14 +611,14 @@ Files to search to put events in the org-agenda. You can put files or a director
   (breadcrumb-mode))
 #+END_SRC
 
-** HS HideShow
+** HS HideShow Disabled by TLA+
 
 #+begin_src emacs-lisp
-(use-package hideshow
-  :hook (prog-mode . hs-minor-mode)
-  :bind (("C-c h h" . hs-hide-all)
-         ("C-c h s" . hs-show-all)
-         ("C-c h t" . hs-toggle-hiding)))
+;; (use-package hideshow
+;;   :hook (prog-mode . hs-minor-mode)
+;;   :bind (("C-c h h" . hs-hide-all)
+;;          ("C-c h s" . hs-show-all)
+;;          ("C-c h t" . hs-toggle-hiding)))
 #+end_src
 
 ** Corfu for auto-completion
@@ -538,50 +628,107 @@ Changed Company for Corfu.
 Use =C-n= and =C-p= to navigate the tooltip.
 
 #+BEGIN_SRC emacs-lisp
-  ;; (use-package company
-  ;;   :ensure t
-  ;;   :config
-  ;;   ;; Optionally enable completion-as-you-type behavior.
-  ;;   (setq company-idle-delay 0.2)
-  ;;   ; (setq company-minimum-prefix-length 1)
-  ;; )
-
 (use-package corfu
   :init
   (global-corfu-mode)
+  :config
   :custom
-  ;; (corfu-auto t)              ;; Enable auto completion
-  ;; (corfu-auto-delay 0.2)        ;; No delay
-  ;; (corfu-auto-prefix 1)       ;; Start completing after 1 character
-  (corfu-preselect 'prompt)  ;; Don't preselect candidates
   (corfu-count 30)
+  (corfu-on-exact-match 'show)
 )
 ;; Complete or Tab
 #+END_SRC
 
-** Flycheck
+** Flymake
 
-A modern on-the-fly syntax checking extension – absolute essential
+Previously flycheck
 
 #+BEGIN_SRC emacs-lisp
-(use-package flycheck
-:ensure t
-)
+(use-package flymake
+  :ensure nil ;; Flymake is built-in, no need to install
+  :hook (prog-mode . flymake-mode)
 #+END_SRC
 
 ** Golang
 
 #+BEGIN_SRC emacs-lisp
-(add-hook 'go-mode-hook (lambda () (setq tab-width dani/indent-width)))
-(use-package go-mode
-  ;; hook does not work
-  :hook (before-save . gofmt-before-save)
-  :config (progn
-            (setq gofmt-command "goimports") ;; format and add/delete imports
-            (remove-hook 'before-save-hook 'whitespace-cleanup nil)
-            )
-  (require 'dap-dlv-go)
+(add-to-list 'auto-mode-alist '("\\.go\\'" . go-ts-mode))
+(add-to-list 'auto-mode-alist '("go\\.mod\\'" . go-mod-ts-mode))
+(add-hook 'go-ts-mode-hook (lambda () (setq tab-width dani/indent-width)))
+
+
+;;;;;;;;;;;; TREESITTER;;;;;;;;;;;; TREESITTER;;;;;;;;;;;; TREESITTER;;;;;;;;;;;; TREESITTER
+;; Treesitter helpers to extract node names for various symbols such as consts,
+;; vars, imports, etc.
+
+(defun my/go-ts-var-is-global-p (node)
+  "Predicate which tests whether a `var_spec' node belongs to the global scope"
+  ;; The parent node for `var_spec' which is `var_declaration' belongs to the
+  ;; global scope, if the `var_declaration' node belongs to a parent node of
+  ;; type `source_file'.
+  (let* ((var-declaration (treesit-parent-until
+                           node
+                           (lambda (item)
+                             (string-equal (treesit-node-type item) "var_declaration"))
+                           t))
+         (var-declaration-parent (treesit-node-parent var-declaration)))
+    (string-equal (treesit-node-type var-declaration-parent) "source_file")))
+
+(defun my/go-ts-const-is-global-p (node)
+  "Predicate which tests whether a `const_spec' node belongs to the global scope"
+  ;; The parent node for `const_spec' which is `const_declaration' belongs to the
+  ;; global scope, if the `const_declaration' node belongs to a parent node of
+  ;; type `source_file'.
+  (let* ((const-declaration (treesit-parent-until
+                             node
+                             (lambda (item)
+                               (string-equal (treesit-node-type item) "const_declaration"))
+                             t))
+         (const-declaration-parent (treesit-node-parent const-declaration)))
+    (string-equal (treesit-node-type const-declaration-parent) "source_file")))
+
+(defun my/go-ts-const-spec-node-name (node)
+  "Returns the name of a `const_spec' node"
+  (let ((const-name (treesit-node-child-by-field-name node "name")))
+    (treesit-node-text const-name)))
+
+(defun my/go-ts-var-spec-node-name (node)
+  "Returns the name of a `var_spec' node"
+  (let ((var-name (treesit-node-child-by-field-name node "name")))
+    (treesit-node-text var-name)))
+
+(defun my/go-ts-import-node-name (node)
+  "Returns the name of a `import_spec' node"
+  (let* ((import-path (treesit-node-child-by-field-name node "path"))
+         (import-alias (treesit-node-child-by-field-name node "name"))
+         (package-name (treesit-search-subtree import-path "interpreted_string_literal_content")))
+    (cond
+     (import-alias
+      (format "%s (%s)" (treesit-node-text package-name) (treesit-node-text import-alias)))
+      (t (treesit-node-text package-name)))))
+
+(defun my/treesit-simple-imenu-settings ()
+  (setq-local imenu-max-item-length 200)
+  (setq-local imenu-index-create-function #'treesit-simple-imenu)
+  (setq-local treesit-simple-imenu-settings
+              '(;;("Imports" "\\`import_spec\\'" nil my/go-ts-import-node-name)
+                ("Interfaces" "\\`type_declaration\\'" go-ts-mode--interface-node-p nil)
+                ("Structs" "\\`type_declaration\\'" go-ts-mode--struct-node-p nil)
+                ("Functions" "\\`function_declaration\\'" nil nil)
+                ("Constants" "\\`const_spec\\'" my/go-ts-const-is-global-p my/go-ts-const-spec-node-name)
+                ("Variables" "\\`var_spec\\'" my/go-ts-var-is-global-p my/go-ts-var-spec-node-name)
+                ("Types" "\\`type_declaration\\'" go-ts-mode--other-type-node-p nil)
+                ("Aliases" "\\`type_declaration\\'" go-ts-mode--alias-node-p nil)
+                ("Methods" "\\`method_declaration\\'" nil nil)))
   )
+;;;;;;;;;;;; TREESITTER;;;;;;;;;;;; TREESITTER;;;;;;;;;;;; TREESITTER;;;;;;;;;;;; TREESITTER
+
+(use-package go-ts-mode
+  :ensure t
+  :config
+  (add-hook 'go-ts-mode-hook #'my/treesit-simple-imenu-settings)
+  )
+
 #+END_SRC
 
 What I want:
@@ -641,7 +788,7 @@ Or use external tool.
   :config
   (add-to-list 'dape-configs
                `(dlv
-                 modes (go-mode go-ts-mode)
+                 modes (go-ts-mode)
                  command "dlv"
                  command-args ("dap" "--listen" "127.0.0.1:0")
                  :type "debug"
@@ -658,11 +805,46 @@ explore yasnippet. What is org default?
 - func ...
 
 #+begin_src emacs-lisp
-  (use-package yasnippet-snippets
-    :ensure t)
-  (use-package yasnippet
-    :ensure t
-    :config (yas-global-mode 1))
+(use-package yasnippet
+  :ensure t
+  :init
+  ;; set dirs BEFORE loading tables
+  (setq yas-snippet-dirs
+        (list (expand-file-name "~/.emacs.d/snippets"))) ; your own
+  :config
+  (yas-global-mode 1)
+  (setq yas-triggers-in-field t)
+  )
+
+(use-package yasnippet-snippets
+  :ensure t
+  :after yasnippet
+  :config
+  ;; add the package snippets without losing yours
+  (add-to-list 'yas-snippet-dirs yasnippet-snippets-dir)
+  (yas-reload-all)
+  )
+
+(use-package cape
+  :ensure t)
+(use-package yasnippet-capf
+  :ensure t
+  :after (yasnippet corfu cape eglot)
+  :config
+  (add-to-list 'completion-at-point-functions
+               #'yasnippet-capf
+               )
+  )
+
+
+;; --- Integración correcta con Eglot ---
+(defun my/eglot-capfs ()
+  "Prioriza snippets y después LSP (Eglot)."
+  (setq-local completion-at-point-functions
+              (list (cape-capf-super
+                     #'yasnippet-capf           ; snippets
+                     #'eglot-completion-at-point ; LSP
+                     #'cape-dabbrev))))          ; fallback opcional
 #+end_src
 
 ** Python
@@ -679,13 +861,16 @@ explore yasnippet. What is org default?
 
 ** TLA+
 
-TLA mode is not in the packages.
+TLA.
 
 #+BEGIN_SRC emacs-lisp
-;; (use-package tla-mode
-;;   :ensure t
-;;   :mode ("\\.tla\\'" . tla-mode)
-;; )
+(use-package tla-ts-mode
+  :ensure t
+  ;;  :quelpa (tla-ts-mode :fetcher github :repo "Davidbrcz/tla-ts-mode")
+  :mode "\\.tla\\'"
+  :config ;; The grammar is called tlaplus, but the mode is called tla
+  (setq treesit-load-name-override-list '((tla "libtree-sitter-tlaplus" "tree_sitter_tlaplus")))
+  )
 #+END_SRC
 
 * Querying Languages
@@ -749,11 +934,11 @@ Maybe with external tools...
         which-key-idle-secondary-delay 0.4))
 #+END_SRC
 
-** RestClient
+** RestClient OFF
 
 #+BEGIN_SRC emacs-lisp
-(use-package restclient
-  )
+;;(use-package restclient
+;;  )
 #+END_SRC
 
 

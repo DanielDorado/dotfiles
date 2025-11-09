@@ -1,6 +1,6 @@
 # -*- mode: snippet -*-
-# name: bash-header
-# key: header
+# name: header
+# key: ysheader
 # --
 #!/usr/bin/env bash
 # Exit on errors
