@@ -22,6 +22,8 @@ Yay-Evil distro by Ian Y.E. Pan.
   ;; (setq-default split-height-threshold 1000)  ;; I coment because it split horizontally helm windows (and )lso
   ;;
   ;; (setq-default indent-tabs-mode nil) ;; Always use spaces for indentation
+  ;; Put this in your init.el
+  (add-hook 'compilation-filter-hook #'ansi-color-compilation-filter)
   (setq-default fill-column 120)  ;; The fill width when justify paragraphs with M-q
   (setq ab-width my/indent-width)
   (global-display-line-numbers-mode)
