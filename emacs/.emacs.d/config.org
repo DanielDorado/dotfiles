@@ -483,7 +483,6 @@ Files to search to put events in the org-agenda. You can put files or a director
 #+end_src
 
 #+begin_src emacs-lisp
-;; Ensure you have 'use-package' installed and configured
 (use-package alert
   :commands alert
   :config
@@ -548,13 +547,7 @@ This temporarily sets `org-pomodoro-length` for this session only."
     (setq org-pomodoro-length minutes)
     (message "Pomodoro length set to %d minutes." minutes)
     (my/org-pomodoro-toggle))
-
-
   )
-
-
-
-
 #+end_src
 
 * Programming Languages
@@ -646,7 +639,7 @@ Previously flycheck
 #+BEGIN_SRC emacs-lisp
 (use-package flymake
   :ensure nil ;; Flymake is built-in, no need to install
-  :hook (prog-mode . flymake-mode)
+  :hook (prog-mode . flymake-mode))
 #+END_SRC
 
 ** Golang
