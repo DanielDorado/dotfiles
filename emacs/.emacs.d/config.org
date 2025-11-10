@@ -297,8 +297,8 @@ Exploring large projects with Projectile and Helm
   (setq treemacs-show-hidden-files nil)
   (setq treemacs-width-is-initially-locked nil)
   (setq treemacs-width 70)
-  (treemacs-project-follow-mode t)
-  (treemacs-follow-mode t)
+  ; (treemacs-project-follow-mode t)
+  ; (treemacs-follow-mode t)
   (treemacs-filewatch-mode -1)
 
   (defun tree ()
